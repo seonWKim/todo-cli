@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-use crate::database::{add_todo, initialize, list_todos, mark_as_done, remove_todo};
+use crate::database::TodoDatabase;
 
 mod database;
 
@@ -18,7 +18,7 @@ enum Commands {
         task: Vec<String>,
     },
 
-    #[command(name = "list", aliases = ["l", "ls", "list"] , about = "List all tasks")]
+    #[command(name = "list", aliases = ["l", "ls", "list"], about = "List all tasks")]
     List {
         #[arg(short, long, help = "Include tasks marked as done")]
         all: bool
@@ -29,7 +29,7 @@ enum Commands {
         task: i32,
     },
 
-    #[command(name = "remove", aliases = ["r", "rm", "remove"] , about = "Remove a task")]
+    #[command(name = "remove", aliases = ["r", "rm", "remove"], about = "Remove a task")]
     Remove {
         task: i32,
     },
@@ -37,7 +37,8 @@ enum Commands {
 
 fn main() {
     let cli = Cli::parse();
-    initialize().expect("Database is not initialized");
+    let tdb = TodoDatabase::new();
+    tdb.initialize().expect("Database is not initialized");
 
     match &cli.command {
         Some(Commands::Add { task }) => {
@@ -46,21 +47,21 @@ fn main() {
                 println!("[tc] Todo cannot be empty");
                 return;
             }
-            add_todo(&todo).expect("Failed to add todo");
+            tdb.add_todo(&todo).expect("Failed to add todo");
             println!("[tc] Added task: {}", todo);
         }
         Some(Commands::List { all }) => {
-            let todos = list_todos(*all).expect("Failed to list todos");
+            let todos = tdb.list_todos(*all).expect("Failed to list todos");
             for todo in todos {
                 println!("[tc] {}: {}", todo.id, todo.title);
             }
         }
         Some(Commands::Done { task }) => {
-            mark_as_done(task).expect("Failed to mark todo as done");
+            tdb.mark_as_done(task).expect("Failed to mark todo as done");
             println!("[tc] Marked task {} as done", task);
         }
         Some(Commands::Remove { task }) => {
-            remove_todo(task).expect("Failed to remove todo");
+            tdb.remove_todo(task).expect("Failed to remove todo");
             println!("[tc] Removed task {}", task);
         }
         None => {}
