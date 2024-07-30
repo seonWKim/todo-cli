@@ -51,3 +51,7 @@ sqlite> .tables
 sqlite> SELECT * FROM todos;  
 ```
 
+
+### TODO 
+- [ ] Add priority to the tasks, Sort and show by priority  
+- [ ] Confirm users when running `removeAll` command   

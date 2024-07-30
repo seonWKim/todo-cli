@@ -33,6 +33,8 @@ enum Commands {
     Remove {
         task: i32,
     },
+    #[command(name = "remove all", aliases = ["removeAll"], about = "Remove all tasks")]
+    RemoveAll
 }
 
 fn main() {
@@ -63,6 +65,11 @@ fn main() {
         Some(Commands::Remove { task }) => {
             tdb.remove_todo(task).expect("Failed to remove todo");
             println!("[tc] Removed task {}", task);
+        }
+        Some(Commands::RemoveAll) => {
+            // TODO: confirm user
+            tdb.remove_all_todos().expect("Failed to remove all todos");
+            println!("[tc] Removed all tasks");
         }
         None => {}
     }
