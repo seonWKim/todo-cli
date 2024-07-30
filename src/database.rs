@@ -1,6 +1,7 @@
 use std::fs;
 
 use rusqlite::{Connection, params, Result};
+use crate::utils::log;
 
 pub struct TodoDatabase {
     db_dir_path: String,
@@ -44,7 +45,7 @@ impl TodoDatabase {
         let db_path = format!("{}/.tc", std::env::var("HOME").unwrap());
         match fs::create_dir_all(&db_path) {
             Ok(_) => {
-                println!("Created directory: {}", db_path);
+                log(&format!("Created directory: {}", db_path));
             }
             Err(_) => {
                 panic!("Failed to create directory: {}, stopping todo-cli", db_path);
@@ -64,7 +65,7 @@ impl TodoDatabase {
         if fs::metadata(&db_path).is_ok() {
             match fs::remove_file(&db_path) {
                 Ok(_) => {
-                    println!("Removed database: {}", db_path);
+                    log(&format!("Removed database: {}", db_path));
                 }
                 Err(_) => {
                     panic!("Failed to remove database: {}, stopping todo-cli", db_path);
@@ -117,7 +118,7 @@ impl TodoDatabase {
         Ok(todos)
     }
 
-    pub fn mark_as_done(&self, id: &i32) -> Result<()> {
+    pub fn mark_as_done(&self, id: i32) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
         let now = chrono::Local::now().to_rfc3339();
 
@@ -129,7 +130,7 @@ impl TodoDatabase {
         Ok(())
     }
 
-    pub fn remove_todo(&self, id: &i32) -> Result<()> {
+    pub fn remove_todo(&self, id: i32) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
 
         conn.execute("DELETE FROM todos WHERE id = ?1", params![id])?;
@@ -202,7 +203,7 @@ mod tests {
         assert_eq!(todos.len(), 1);
         let todo_id = todos[0].id;
 
-        tdb.mark_as_done(&todo_id).unwrap();
+        tdb.mark_as_done(todo_id).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 0);
@@ -219,7 +220,7 @@ mod tests {
         assert_eq!(todos.len(), 1);
         let todo_id = todos[0].id;
 
-        tdb.remove_todo(&todo_id).unwrap();
+        tdb.remove_todo(todo_id).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 0);

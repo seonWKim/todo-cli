@@ -1,18 +1,22 @@
+use std::io;
+use std::io::Write;
 use clap::{Parser, Subcommand};
 
 use crate::database::TodoDatabase;
+use crate::utils::log;
 
 mod database;
+mod utils;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
     #[command(subcommand)]
-    command: Option<Commands>,
+    command: Option<Command>,
 }
 
 #[derive(Subcommand)]
-enum Commands {
+enum Command {
     #[command(name = "add", aliases = ["a", "add"], about = "Add a new task")]
     Add {
         task: Vec<String>,
@@ -39,38 +43,59 @@ enum Commands {
 
 fn main() {
     let cli = Cli::parse();
+
+    match cli.command {
+        Some(command) => handle_command(command),
+        None => println!("[tc] No command provided"),
+    }
+}
+
+fn handle_command(command: Command) {
     let tdb = TodoDatabase::new();
     tdb.initialize().expect("Database is not initialized");
 
-    match &cli.command {
-        Some(Commands::Add { task }) => {
+    match command {
+        Command::Add { task } => {
             let todo = task.join(" ");
             if todo.is_empty() {
-                println!("[tc] Todo cannot be empty");
+                log("Todo cannot be empty");
                 return;
             }
             tdb.add_todo(&todo).expect("Failed to add todo");
-            println!("[tc] Added task: {}", todo);
+            log(&format!("Added task: {}", todo));
         }
-        Some(Commands::List { all }) => {
-            let todos = tdb.list_todos(*all).expect("Failed to list todos");
-            for todo in todos {
-                println!("[tc] {}: {}", todo.id, todo.title);
+        Command::List { all } => {
+            let todos = tdb.list_todos(all).expect("Failed to list todos");
+            for todo in &todos {
+                log(&format!("{}: {}", todo.id, todo.title));
+            }
+
+            log("Select a todo by entering the corresponding id: ");
+            io::stdout().flush().unwrap();
+
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).expect("Failed to read input");
+            let input: usize = input.trim().parse().expect("Invalid input");
+
+            if input < todos.len() {
+                let selected_todo = &todos[input];
+                log(&format!("You selected: {}: {}", selected_todo.id, selected_todo.title));
+            } else {
+                log("Invalid selection");
             }
         }
-        Some(Commands::Done { task }) => {
+        Command::Done { task } => {
             tdb.mark_as_done(task).expect("Failed to mark todo as done");
-            println!("[tc] Marked task {} as done", task);
+            log(&format!("Marked task {} as done", task));
         }
-        Some(Commands::Remove { task }) => {
+        Command::Remove { task } => {
             tdb.remove_todo(task).expect("Failed to remove todo");
-            println!("[tc] Removed task {}", task);
+            log(&format!("Removed task {}", task));
         }
-        Some(Commands::RemoveAll) => {
+        Command::RemoveAll => {
             // TODO: confirm user
             tdb.remove_all_todos().expect("Failed to remove all todos");
-            println!("[tc] Removed all tasks");
+            log("Removed all tasks");
         }
-        None => {}
     }
 }
