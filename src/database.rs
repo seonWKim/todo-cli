@@ -59,6 +59,11 @@ pub fn add_todo(todo: &String) -> Result<()> {
     let now = chrono::Local::now().to_rfc3339();
 
     conn.execute(
+        "UPDATE todos SET done = ?1, updated_at = ?2 WHERE title = ?3",
+        params![true, now, todo],
+    )?;
+
+    conn.execute(
         "INSERT INTO todos (title, created_at, updated_at, done) VALUES (?1, ?2, ?3, ?4)",
         params![todo, now, now, false],
     )?;

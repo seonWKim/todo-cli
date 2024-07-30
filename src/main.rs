@@ -42,6 +42,10 @@ fn main() {
     match &cli.command {
         Some(Commands::Add { task }) => {
             let todo = task.join(" ");
+            if todo.is_empty() {
+                println!("[tc] Todo cannot be empty");
+                return;
+            }
             add_todo(&todo).expect("Failed to add todo");
             println!("[tc] Added task: {}", todo);
         }
