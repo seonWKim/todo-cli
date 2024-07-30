@@ -9,20 +9,20 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    #[command(name = "add", alias = "a")]
+    #[command(name = "add", alias = "a", about = "Add a new task")]
     Add {
         task: Vec<String>,
     },
 
-    #[command(name = "list", alias = "ls")]
+    #[command(name = "list", alias = "ls", about = "List all tasks")]
     List,
 
-    #[command(name = "done", alias = "d")]
+    #[command(name = "done", alias = "d", about = "Mark a task as done")]
     Done {
         task: Vec<String>,
     },
 
-    #[command(name = "remove", alias = "rm")]
+    #[command(name = "remove", alias = "rm", about = "Remove a task")]
     Remove {
         task: Vec<String>,
     },

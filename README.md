@@ -13,11 +13,12 @@ todo-cli is a simple command line tool to manage your todo list.
 ## Installation 
 
 ```bash
+# clone the repository and change directory  
 $ git clone https://github.com/seonWKim/todo-cli.git 
-
 $ cd todo-cli 
 
-$ sudo ./release.sh
+# build the project 
+$ ./release.sh
 ```
                     
 ## Usage 
