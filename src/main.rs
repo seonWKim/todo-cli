@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-use crate::database::initialize;
+use crate::database::{add_todo, initialize};
 
 mod database;
 
@@ -38,7 +38,9 @@ fn main() {
 
     match &cli.command {
         Some(Commands::Add { task }) => {
-            println!("Adding task: {}", task.join(", "));
+            let todo = task.join(" ");
+            add_todo(&todo).expect("Failed to add todo");
+            println!("[tc] Added task: {}", todo);
         }
         Some(Commands::List) => {
             println!("Listing all tasks");
