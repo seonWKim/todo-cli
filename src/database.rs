@@ -81,7 +81,7 @@ impl TodoDatabase {
         fs::metadata(db_path).is_ok()
     }
 
-    pub fn add_todo(&self, todo: &String) -> Result<()> {
+    pub fn add_todo(&self, todo: &str) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
         let now = chrono::Local::now().to_rfc3339();
 

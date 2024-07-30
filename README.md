@@ -4,6 +4,7 @@ todo-cli is a simple command line tool to manage your todo list.
 
 ## Features 
 
+- [X] `tc -i`: Interactive mode 
 - [X] `tc -a <task>`: Add a task to the list 
 - [X] `tc -l`: List all tasks 
 - [X] `tc -d <task>`: Mark a task as done

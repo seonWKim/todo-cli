@@ -1,12 +1,15 @@
 use std::io;
 use std::io::Write;
+
 use clap::{Parser, Subcommand};
 
 use crate::database::TodoDatabase;
-use crate::utils::log;
+use crate::handlers::{handle_add, handle_done, handle_list, handle_remove, handle_remove_all};
+use crate::utils::request_user_input;
 
 mod database;
 mod utils;
+mod handlers;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -17,6 +20,11 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    #[command(
+        name = "interactive", aliases = ["i", "interactive"], about = "Start interactive mode"
+    )]
+    Interactive {},
+
     #[command(name = "add", aliases = ["a", "add"], about = "Add a new task")]
     Add {
         task: Vec<String>,
@@ -38,7 +46,7 @@ enum Command {
         task: i32,
     },
     #[command(name = "remove all", aliases = ["removeAll"], about = "Remove all tasks")]
-    RemoveAll
+    RemoveAll,
 }
 
 fn main() {
@@ -55,47 +63,29 @@ fn handle_command(command: Command) {
     tdb.initialize().expect("Database is not initialized");
 
     match command {
+        Command::Interactive {} => {
+            request_user_input("Enter a command: ");
+            //
+            // let mut input = String::new();
+            // io::stdin().read_line(&mut input).expect("Failed to read input");
+            //
+            // let input = input.trim().parse().expect("Invalid input");
+        }
         Command::Add { task } => {
             let todo = task.join(" ");
-            if todo.is_empty() {
-                log("Todo cannot be empty");
-                return;
-            }
-            tdb.add_todo(&todo).expect("Failed to add todo");
-            log(&format!("Added task: {}", todo));
+            handle_add(&tdb, &todo);
         }
         Command::List { all } => {
-            let todos = tdb.list_todos(all).expect("Failed to list todos");
-            for todo in &todos {
-                log(&format!("{}: {}", todo.id, todo.title));
-            }
-
-            log("Select a todo by entering the corresponding id: ");
-            io::stdout().flush().unwrap();
-
-            let mut input = String::new();
-            io::stdin().read_line(&mut input).expect("Failed to read input");
-            let input: usize = input.trim().parse().expect("Invalid input");
-
-            if input < todos.len() {
-                let selected_todo = &todos[input];
-                log(&format!("You selected: {}: {}", selected_todo.id, selected_todo.title));
-            } else {
-                log("Invalid selection");
-            }
+            handle_list(&tdb, all)
         }
         Command::Done { task } => {
-            tdb.mark_as_done(task).expect("Failed to mark todo as done");
-            log(&format!("Marked task {} as done", task));
+            handle_done(&tdb, task);
         }
         Command::Remove { task } => {
-            tdb.remove_todo(task).expect("Failed to remove todo");
-            log(&format!("Removed task {}", task));
+            handle_remove(&tdb, task);
         }
         Command::RemoveAll => {
-            // TODO: confirm user
-            tdb.remove_all_todos().expect("Failed to remove all todos");
-            log("Removed all tasks");
+            handle_remove_all(&tdb);
         }
     }
 }
