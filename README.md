@@ -37,3 +37,17 @@ $ tc d task1
 $ tc r task1 
 ``` 
 
+## Development 
+
+### Debugging sqlite  
+```bash
+# connect to the database 
+$ sqlite3 ~/.tc/todo.db
+
+# list tables 
+sqlite> .tables 
+
+# select all todos(table)  
+sqlite> SELECT * FROM todos;  
+```
+

@@ -1,5 +1,9 @@
 use clap::{Parser, Subcommand};
 
+use crate::database::initialize;
+
+mod database;
+
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
@@ -30,6 +34,7 @@ enum Commands {
 
 fn main() {
     let cli = Cli::parse();
+    initialize().expect("Database is not initialized");
 
     match &cli.command {
         Some(Commands::Add { task }) => {

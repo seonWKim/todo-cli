@@ -7,28 +7,28 @@ rm -rf target
 cargo build --release
 
 # Ensure the local bin directory exists
-mkdir -p $HOME/.local/bin
+mkdir -p $HOME/.tc/bin
 
 # Remove the existing symbolic link if exists
-rm -f $HOME/.local/bin/tc
+rm -f $HOME/.tc/bin/tc
 
 # Create a symbolic link to the binary
-ln -s $(pwd)/target/release/todo-cli $HOME/.local/bin/tc
+ln -s $(pwd)/target/release/todo-cli $HOME/.tc/bin/tc
 
 # Ensure the local bin directory is in the PATH
-if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+if [[ ":$PATH:" != *":$HOME/.tc/bin:"* ]]; then
     if [[ -f $HOME/.zshrc ]]; then
-        if ! grep -q 'export PATH=$HOME/.local/bin:$PATH' $HOME/.zshrc; then
-            echo 'export PATH=$HOME/.local/bin:$PATH' >> $HOME/.zshrc
+        if ! grep -q 'export PATH=$HOME/.tc/bin:$PATH' $HOME/.zshrc; then
+            echo 'export PATH=$HOME/.tc/bin:$PATH' >> $HOME/.zshrc
             echo "Please run: source $HOME/.zshrc"
         fi
     elif [[ -f $HOME/.bashrc ]]; then
-        if ! grep -q 'export PATH=$HOME/.local/bin:$PATH' $HOME/.bashrc; then
-            echo 'export PATH=$HOME/.local/bin:$PATH' >> $HOME/.bashrc
+        if ! grep -q 'export PATH=$HOME/.tc/bin:$PATH' $HOME/.bashrc; then
+            echo 'export PATH=$HOME/.tc/bin:$PATH' >> $HOME/.bashrc
             echo "Please run: source $HOME/.bashrc"
         fi
     else
         echo "No .bashrc or .zshrc file found. Please create one and add the following line:"
-        echo 'export PATH=$HOME/.local/bin:$PATH'
+        echo 'export PATH=$HOME/.tc/bin:$PATH'
     fi
 fi
