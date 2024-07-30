@@ -13,5 +13,26 @@ todo-cli is a simple command line tool to manage your todo list.
 ## Installation 
 
 ```bash
-$ git clone ... 
+$ git clone https://github.com/seonWKim/todo-cli.git 
+
+$ cd todo-cli 
+
+$ sudo ./release.sh
 ```
+                    
+## Usage 
+
+```bash
+# add a task  
+$ tc a task1 
+
+# list all tasks 
+$ tc l 
+
+# mark a task as done 
+$ tc d task1 
+
+# remove a task 
+$ tc r task1 
+``` 
+
