@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-use crate::database::{add_todo, initialize, list_todos};
+use crate::database::{add_todo, initialize, list_todos, mark_as_done, remove_todo};
 
 mod database;
 
@@ -13,22 +13,25 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    #[command(name = "add", alias = "a", about = "Add a new task")]
+    #[command(name = "add", aliases = ["a", "add"], about = "Add a new task")]
     Add {
         task: Vec<String>,
     },
 
-    #[command(name = "list", alias = "ls", about = "List all tasks")]
-    List,
-
-    #[command(name = "done", alias = "d", about = "Mark a task as done")]
-    Done {
-        task: Vec<String>,
+    #[command(name = "list", aliases = ["l", "ls", "list"] , about = "List all tasks")]
+    List {
+        #[arg(short, long, help = "Include tasks marked as done")]
+        all: bool
     },
 
-    #[command(name = "remove", alias = "rm", about = "Remove a task")]
+    #[command(name = "done", aliases = ["d", "done"], about = "Mark a task as done")]
+    Done {
+        task: i32,
+    },
+
+    #[command(name = "remove", aliases = ["r", "rm", "remove"] , about = "Remove a task")]
     Remove {
-        task: Vec<String>,
+        task: i32,
     },
 }
 
@@ -42,17 +45,19 @@ fn main() {
             add_todo(&todo).expect("Failed to add todo");
             println!("[tc] Added task: {}", todo);
         }
-        Some(Commands::List) => {
-            let todos = list_todos(false).expect("Failed to list todos");
+        Some(Commands::List { all }) => {
+            let todos = list_todos(*all).expect("Failed to list todos");
             for todo in todos {
                 println!("[tc] {}: {}", todo.id, todo.title);
             }
         }
         Some(Commands::Done { task }) => {
-            println!("Marking task as done: {}", task.join(", "));
+            mark_as_done(task).expect("Failed to mark todo as done");
+            println!("[tc] Marked task {} as done", task);
         }
         Some(Commands::Remove { task }) => {
-            println!("Removing task: {}", task.join(", "));
+            remove_todo(task).expect("Failed to remove todo");
+            println!("[tc] Removed task {}", task);
         }
         None => {}
     }

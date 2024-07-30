@@ -86,6 +86,26 @@ pub fn list_todos(include_done: bool) -> Result<Vec<Todo>> {
     Ok(todos)
 }
 
+pub fn mark_as_done(id: &i32) -> Result<()> {
+    let conn = Connection::open(get_db_path())?;
+    let now = chrono::Local::now().to_rfc3339();
+
+    conn.execute(
+        "UPDATE todos SET done = ?1, updated_at = ?2 WHERE id = ?3",
+        params![true, now, id],
+    )?;
+
+    Ok(())
+}
+
+pub fn remove_todo(id: &i32) -> Result<()> {
+    let conn = Connection::open(get_db_path())?;
+
+    conn.execute("DELETE FROM todos WHERE id = ?1", params![id])?;
+
+    Ok(())
+}
+
 fn get_db_path() -> String {
     format!("{}/.tc/{}", std::env::var("HOME").unwrap(), DB_NAME)
 }
