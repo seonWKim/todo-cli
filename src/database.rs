@@ -42,13 +42,12 @@ impl TodoDatabase {
             return Ok(());
         }
 
-        let db_path = format!("{}/.tc", std::env::var("HOME").unwrap());
-        match fs::create_dir_all(&db_path) {
+        match fs::create_dir_all(&self.db_dir_path) {
             Ok(_) => {
-                log(&format!("Created directory: {}", db_path));
+                log(&format!("Created directory: {}", self.db_dir_path));
             }
             Err(_) => {
-                panic!("Failed to create directory: {}, stopping todo-cli", db_path);
+                panic!("Failed to create directory: {}, stopping todo-cli", self.db_dir_path);
             }
         }
 
@@ -185,10 +184,13 @@ mod tests {
     fn setup_test_db(db_name: &str) -> TodoDatabase {
         let db_path = format!("{}/.tc_test", env::var("HOME").unwrap()).to_string();
         let tdb = TodoDatabase::new_test(db_path, db_name.to_string());
-        tdb.teardown().expect("Failed to teardown test database");
         tdb.initialize().expect("Failed to initialize test database");
 
         return tdb;
+    }
+
+    fn tear_down_test_db(tdb: &TodoDatabase) {
+        tdb.teardown().expect("Failed to teardown test database");
     }
 
     #[test]
@@ -208,6 +210,8 @@ mod tests {
         assert_eq!(todos[0].title, todo1);
         assert_eq!(todos[1].title, todo2);
         assert_eq!(todos[2].title, todo3);
+
+        tear_down_test_db(&tdb);
     }
 
     #[test]
@@ -225,6 +229,8 @@ mod tests {
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 0);
+
+        tear_down_test_db(&tdb);
     }
 
     #[test]
@@ -247,6 +253,8 @@ mod tests {
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 1);
+
+        tear_down_test_db(&tdb);
     }
 
     #[test]
@@ -264,5 +272,7 @@ mod tests {
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 0);
+
+        tear_down_test_db(&tdb);
     }
 }
