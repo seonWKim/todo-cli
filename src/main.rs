@@ -2,6 +2,7 @@ use std::io;
 use std::io::Write;
 
 use clap::{CommandFactory, Parser, Subcommand};
+use colored::Colorize;
 
 use crate::database::TodoDatabase;
 use crate::handlers::{handle_add, handle_done, handle_help, handle_list, handle_remove, handle_remove_all};
@@ -69,7 +70,7 @@ fn handle_command(command: Command) {
     match command {
         Command::Interactive {} => {
             loop {
-                user_input("Enter a command(type help for more commands): ");
+                user_input("Enter a command (type help for more commands): ");
                 io::stdout().flush().expect("Failed to flush stdout");
 
                 let mut input = String::new();
