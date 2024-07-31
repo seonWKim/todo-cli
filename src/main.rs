@@ -30,7 +30,10 @@ enum Command {
     #[command(name = "l", aliases = ["ls", "list"], about = "List all todos")]
     List {
         #[arg(short, long, help = "Include tasks marked as done")]
-        all: bool
+        all: bool,
+
+        #[arg(short, long, help = "Sort by date")]
+        date: bool
     },
 
     #[command(name = "f", aliases = ["find"], about = "Find todo")]
@@ -38,7 +41,10 @@ enum Command {
         keyword: Vec<String>,
 
         #[arg(short, long, help = "Include tasks marked as done")]
-        all: bool
+        all: bool,
+
+        #[arg(short, long, help = "Sort by date")]
+        date: bool
     },
 
     #[command(name = "d", aliases = ["done"], about = "Mark todo as done")]
@@ -123,13 +129,13 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
             let todo = task.join(" ");
             handle_add(&tdb, &todo);
         }
-        Command::List { all } => {
-            handle_list(&tdb, all)
+        Command::List { all , date } => {
+            handle_list(&tdb, all, date)
         }
-        Command::Find { keyword, all } => {
+        Command::Find { keyword, all, date } => {
             let joined_keyword = keyword.join(" ");
             let keyword = joined_keyword.trim();
-            handle_find(&tdb, &keyword, all)
+            handle_find(&tdb, &keyword, all, date)
         }
         Command::Done { task } => {
             handle_done(&tdb, task);

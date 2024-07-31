@@ -193,7 +193,7 @@ impl TodoDatabase {
 }
 
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Todo {
     pub(crate) id: i32,
     pub(crate) title: String,
