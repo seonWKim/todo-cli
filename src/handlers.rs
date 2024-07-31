@@ -1,8 +1,10 @@
+use std::collections::BTreeMap;
+use chrono::NaiveDate;
 use clap::CommandFactory;
-
+use colored::Colorize;
 use crate::Cli;
-use crate::database::TodoDatabase;
-use crate::utils::log;
+use crate::database::{Todo, TodoDatabase};
+use crate::utils::{log, log1};
 
 pub fn handle_add(tdb: &TodoDatabase, todo: &str) {
     if todo.is_empty() {
@@ -13,10 +15,29 @@ pub fn handle_add(tdb: &TodoDatabase, todo: &str) {
     log(&format!("Added task: {}", todo));
 }
 
-pub fn handle_list(tdb: &TodoDatabase, include_done: bool) {
-    let todos = tdb.list_todos(include_done).expect("Failed to list todos");
+pub fn handle_list(tdb: &TodoDatabase, include_all: bool) {
+    let todos = tdb.list_todos(include_all).expect("Failed to list todos");
+    let mut grouped_todos: BTreeMap<NaiveDate, Vec<&Todo>> = BTreeMap::new();
     for todo in &todos {
-        log(&format!("{}: {}", todo.id, todo.title));
+        let date = NaiveDate::parse_from_str(&todo.updated_at[..10], "%Y-%m-%d").expect("Invalid date format");
+        grouped_todos.entry(date).or_insert_with(Vec::new).push(todo);
+    }
+
+    for (_, group) in grouped_todos.iter_mut() {
+        group.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+    }
+
+    let total_groups = grouped_todos.len();
+    for (index, (date, group)) in grouped_todos.iter().rev().enumerate() {
+        log1(&format!("Date: {}", date).green());
+        for todo in group {
+            let mark = if todo.done { "✔" } else { " "} ;
+            log(&format!("[{}] [{}] {} ", mark, todo.id, todo.title));
+        }
+
+        if index != total_groups - 1 {
+            println!();
+        }
     }
 }
 

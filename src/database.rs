@@ -98,12 +98,18 @@ impl TodoDatabase {
         Ok(())
     }
 
-    pub fn list_todos(&self, include_done: bool) -> Result<Vec<Todo>> {
+    pub fn list_todos(&self, include_all: bool) -> Result<Vec<Todo>> {
         let conn = Connection::open(self.get_db_path())?;
-        let mut stmt = conn.prepare("SELECT id, title, created_at, updated_at, done FROM todos WHERE done = ?1")?;
+        let sql = if include_all {
+            "SELECT id, title, created_at, updated_at, done FROM todos"
+        } else {
+            "SELECT id, title, created_at, updated_at, done FROM todos WHERE done = ?1"
+        };
+        let mut stmt = conn.prepare(sql)?;
 
+        let params = if include_all { params![] } else { params![false] };
         let todos = stmt
-            .query_map(params![include_done], |row| {
+            .query_map(params, |row| {
                 Ok(Todo {
                     id: row.get(0)?,
                     title: row.get(1)?,
@@ -153,8 +159,8 @@ pub struct Todo {
     pub(crate) id: i32,
     pub(crate) title: String,
     pub(crate) created_at: String,
-    updated_at: String,
-    done: bool,
+    pub(crate) updated_at: String,
+    pub(crate) done: bool,
 }
 
 
