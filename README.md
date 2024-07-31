@@ -52,7 +52,5 @@ sqlite> SELECT * FROM todos;
 
 ### TODO 
 - [ ] Add priority to the todos, sort and show by priority
-- [ ] Grouping by date when running list command should be optional 
-- [ ] Confirm users when running `reset` command   
 - [ ] Add Alfred support 
 - [ ] Deadline for todos 
