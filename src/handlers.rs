@@ -34,7 +34,7 @@ pub fn handle_list(tdb: &TodoDatabase, include_all: bool, sort_by_date: bool) {
         let total_groups = grouped_todos.len();
         for (index, (date, group)) in grouped_todos.iter().rev().enumerate() {
             log(&format!("Date: {}", date).green().to_string());
-            group.iter().for_each(|todo| print_todo(todo));
+            group.iter().for_each(|todo| print_todo(todo, include_all));
 
             if index != total_groups - 1 {
                 println!();
@@ -43,13 +43,17 @@ pub fn handle_list(tdb: &TodoDatabase, include_all: bool, sort_by_date: bool) {
     } else {
         let mut todos_sorted = todos.clone();
         todos_sorted.sort_by(|a, b| b.id.cmp(&a.id));
-        todos_sorted.iter().for_each(|todo| print_todo(todo));
+        todos_sorted.iter().for_each(|todo| print_todo(todo, include_all));
     }
 }
 
-fn print_todo(todo: &Todo) {
-    let mark = if todo.done { "✔" } else { " " };
-    log(&format!("[{}] ({}) {} ", mark, todo.id, todo.title));
+fn print_todo(todo: &Todo, show_mark: bool) {
+    if show_mark {
+        let mark = if todo.done { "✔" } else { " " };
+        log(&format!("({}) {} [{}]", todo.id, todo.title, mark));
+    } else {
+        log(&format!("({}) {}", todo.id, todo.title));
+    }
 }
 
 pub fn handle_find(tdb: &TodoDatabase, keyword: &str, include_all: bool, sort_by_date: bool) {
@@ -70,7 +74,7 @@ pub fn handle_find(tdb: &TodoDatabase, keyword: &str, include_all: bool, sort_by
         for (index, (date, group)) in grouped_todos.iter().rev().enumerate() {
             log(&format!("Date: {}", date).green().to_string());
             for todo in group {
-                print_todo_highlightened(todo, keyword);
+                print_todo_highlightened(todo, keyword, include_all);
             }
 
             if index != total_groups - 1 {
@@ -81,15 +85,20 @@ pub fn handle_find(tdb: &TodoDatabase, keyword: &str, include_all: bool, sort_by
         let mut todos_sorted = todos.clone();
         todos_sorted.sort_by(|a, b| b.id.cmp(&a.id));
         for todo in todos_sorted {
-            print_todo_highlightened(&todo, keyword);
+            print_todo_highlightened(&todo, keyword, include_all);
         }
     }
 }
 
-fn print_todo_highlightened(todo: &Todo, keyword: &str) {
-    let mark = if todo.done { "✔" } else { " " };
-    let highlightened_title = todo.title.replace(keyword, &format!("{}", keyword).red().to_string());
-    log(&format!("[{}] ({}) {} ", mark, todo.id, highlightened_title));
+fn print_todo_highlightened(todo: &Todo, keyword: &str, show_mark: bool) {
+    if show_mark {
+        let mark = if todo.done { "✅" } else { " " };
+        let highlightened_title = todo.title.replace(keyword, &format!("{}", keyword).red().to_string());
+        log(&format!("({}) {} [{}]", todo.id, highlightened_title, mark));
+    } else {
+        let highlightened_title = todo.title.replace(keyword, &format!("{}", keyword).red().to_string());
+        log(&format!("({}) {}", todo.id, highlightened_title));
+    }
 }
 
 pub fn handle_done(tdb: &TodoDatabase, id: i32) {
