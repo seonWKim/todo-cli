@@ -5,7 +5,7 @@ use clap::{CommandFactory, Parser, Subcommand};
 use colored::Colorize;
 
 use crate::database::TodoDatabase;
-use crate::handlers::{handle_add, handle_done, handle_help, handle_list, handle_remove, handle_reset};
+use crate::handlers::{handle_add, handle_done, handle_help, handle_list, handle_remove, handle_reset, handle_undone};
 use crate::utils::{log, user_input};
 
 mod database;
@@ -39,6 +39,11 @@ enum Command {
 
     #[command(name = "d", aliases = ["done"], about = "Mark todo as done")]
     Done {
+        task: i32,
+    },
+
+    #[command(name = "u", aliases = ["undone"], about = "Mark todo as undone")]
+    UNDONE {
         task: i32,
     },
 
@@ -120,6 +125,9 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
         }
         Command::Done { task } => {
             handle_done(&tdb, task);
+        }
+        Command::UNDONE { task } => {
+            handle_undone(&tdb, task);
         }
         Command::Remove { task } => {
             handle_remove(&tdb, task);

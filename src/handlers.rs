@@ -19,12 +19,12 @@ pub fn handle_list(tdb: &TodoDatabase, include_all: bool) {
     let todos = tdb.list_todos(include_all).expect("Failed to list todos");
     let mut grouped_todos: BTreeMap<NaiveDate, Vec<&Todo>> = BTreeMap::new();
     for todo in &todos {
-        let date = NaiveDate::parse_from_str(&todo.updated_at[..10], "%Y-%m-%d").expect("Invalid date format");
+        let date = NaiveDate::parse_from_str(&todo.created_at[..10], "%Y-%m-%d").expect("Invalid date format");
         grouped_todos.entry(date).or_insert_with(Vec::new).push(todo);
     }
 
     for (_, group) in grouped_todos.iter_mut() {
-        group.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+        group.sort_by(|a, b| b.created_at.cmp(&a.created_at));
     }
 
     let total_groups = grouped_todos.len();
@@ -32,7 +32,7 @@ pub fn handle_list(tdb: &TodoDatabase, include_all: bool) {
         log1(&format!("Date: {}", date).green());
         for todo in group {
             let mark = if todo.done { "✔" } else { " "} ;
-            log(&format!("[{}] [{}] {} ", mark, todo.id, todo.title));
+            log(&format!("[{}] ({}) {} ", mark, todo.id, todo.title));
         }
 
         if index != total_groups - 1 {
@@ -44,6 +44,11 @@ pub fn handle_list(tdb: &TodoDatabase, include_all: bool) {
 pub fn handle_done(tdb: &TodoDatabase, id: i32) {
     tdb.mark_as_done(id).expect("Failed to mark todo as done");
     log(&format!("Marked todo {} as done", id));
+}
+
+pub fn handle_undone(tdb: &TodoDatabase, id: i32) {
+    tdb.mark_as_undone(id).expect("Failed to mark todo as undone");
+    log(&format!("Marked todo {} as undone", id));
 }
 
 pub fn handle_remove(tdb: &TodoDatabase, id: i32) {

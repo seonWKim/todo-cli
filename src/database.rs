@@ -136,6 +136,18 @@ impl TodoDatabase {
         Ok(())
     }
 
+    pub fn mark_as_undone(&self, id: i32) -> Result<()> {
+        let conn = Connection::open(self.get_db_path())?;
+        let now = chrono::Local::now().to_rfc3339();
+
+        conn.execute(
+            "UPDATE todos SET done = ?1, updated_at = ?2 WHERE id = ?3",
+            params![false, now, id],
+        )?;
+
+        Ok(())
+    }
+
     pub fn remove_todo(&self, id: i32) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
 
@@ -213,6 +225,28 @@ mod tests {
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 0);
+    }
+
+    #[test]
+    fn test_undone_todo_should_be_shown() {
+        let tdb = setup_test_db("test_undone_todo_should_be_shown.db");
+
+        let todo = "Test Todo".to_string();
+        tdb.add_todo(&todo).unwrap();
+
+        let todos = tdb.list_todos(false).unwrap();
+        assert_eq!(todos.len(), 1);
+        let todo_id = todos[0].id;
+
+        tdb.mark_as_done(todo_id).unwrap();
+
+        let todos = tdb.list_todos(false).unwrap();
+        assert_eq!(todos.len(), 0);
+
+        tdb.mark_as_undone(todo_id).unwrap();
+
+        let todos = tdb.list_todos(false).unwrap();
+        assert_eq!(todos.len(), 1);
     }
 
     #[test]
