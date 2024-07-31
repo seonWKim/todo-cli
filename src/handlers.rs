@@ -6,7 +6,7 @@ use colored::Colorize;
 
 use crate::Cli;
 use crate::database::{Todo, TodoDatabase};
-use crate::utils::log;
+use crate::utils::{log, user_input};
 
 pub fn handle_add(tdb: &TodoDatabase, todo: &str) {
     if todo.is_empty() {
@@ -86,6 +86,12 @@ pub fn handle_remove(tdb: &TodoDatabase, id: i32) {
 }
 
 pub fn handle_reset(tdb: &TodoDatabase) {
+    let input = user_input("Are you sure you want to remove all todos(yes/no)?: ").expect("Failed to read input");
+    if input.trim() != "yes" {
+        log("Reset aborted");
+        return;
+    }
+
     tdb.reset().expect("Failed to remove all todos");
     log("Removed all todos");
 }

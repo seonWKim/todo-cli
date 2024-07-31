@@ -1,6 +1,3 @@
-use std::io;
-use std::io::Write;
-
 use clap::{Parser, Subcommand};
 
 use crate::database::TodoDatabase;
@@ -79,11 +76,13 @@ fn handle_command(command: Command) {
     match command {
         Command::Interactive {} => {
             loop {
-                user_input("Enter a command (type help for more commands): ");
-                io::stdout().flush().expect("Failed to flush stdout");
-
-                let mut input = String::new();
-                io::stdin().read_line(&mut input).expect("Failed to read line");
+                let input = match user_input("Enter a command (type help for more commands): ") {
+                    Ok(input) => input,
+                    Err(_) => {
+                        log("Failed to read input, stopping...");
+                        break;
+                    }
+                };
 
                 let program_name = "tc";
                 let formatted_input = format!("{} {}", program_name, input.trim());
