@@ -21,7 +21,8 @@ impl TodoDatabase {
         }
     }
 
-    pub fn new_test(
+    #[allow(dead_code)]
+    fn new_test(
         db_dir_path: String,
         db_name: String
     ) -> TodoDatabase {
@@ -59,6 +60,7 @@ impl TodoDatabase {
         Ok(())
     }
 
+    #[allow(dead_code)]
     pub fn teardown(&self) -> Result<()> {
         let db_path = self.get_db_path();
         if fs::metadata(&db_path).is_ok() {
@@ -196,7 +198,8 @@ pub struct Todo {
     pub(crate) id: i32,
     pub(crate) title: String,
     pub(crate) created_at: String,
-    pub(crate) updated_at: String,
+    #[allow(dead_code)]
+    updated_at: String,
     pub(crate) done: bool,
 }
 
@@ -207,6 +210,7 @@ mod tests {
 
     use super::*;
 
+    #[allow(dead_code)]
     fn setup_test_db(db_name: &str) -> TodoDatabase {
         let db_path = format!("{}/.tc_test", env::var("HOME").unwrap()).to_string();
         let tdb = TodoDatabase::new_test(db_path, db_name.to_string());
@@ -215,6 +219,7 @@ mod tests {
         return tdb;
     }
 
+    #[allow(dead_code)]
     fn tear_down_test_db(tdb: &TodoDatabase) {
         tdb.teardown().expect("Failed to teardown test database");
     }

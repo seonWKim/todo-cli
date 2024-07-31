@@ -61,9 +61,6 @@ enum Command {
 
     #[command(name = "rs", aliases = ["reset"], about = "Reset todos")]
     Reset,
-
-    #[command(name = "h", about = "Print help information")]
-    Help,
 }
 
 fn main() {
@@ -106,7 +103,7 @@ fn handle_command(command: Command) {
                     _ => {
                         // We can't register help as command's alias because there is a conflict with the (clap's) help command
                         if input.trim() == "help" {
-                            handle_non_interactive_command(&tdb, Command::Help);
+                            handle_help()
                         } else {
                             log("Invalid command provided, stopping...");
                             break;
@@ -146,9 +143,6 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
         }
         Command::Reset => {
             handle_reset(&tdb);
-        }
-        Command::Help => {
-            handle_help();
         }
         _ => {}
     }

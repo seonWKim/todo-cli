@@ -1,4 +1,4 @@
-use colored::{ColoredString, Colorize};
+use colored::Colorize;
 
 pub fn log(text: &str) {
     println!("{} {}", "[tc]".green(), text);
