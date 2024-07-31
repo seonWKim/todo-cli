@@ -123,6 +123,32 @@ impl TodoDatabase {
         Ok(todos)
     }
 
+    pub fn find_todos(&self, keyword: &str, include_all: bool) -> Result<Vec<Todo>> {
+        let conn = Connection::open(self.get_db_path())?;
+        let sql = if include_all {
+            format!("SELECT id, title, created_at, updated_at, done FROM todos WHERE title LIKE '%{}%'", keyword)
+        } else {
+            format!("SELECT id, title, created_at, updated_at, done FROM todos WHERE title LIKE '%{}%' AND done = ?1", keyword)
+        };
+        let mut stmt = conn.prepare(sql.as_str())?;
+
+        let params = if include_all { params![] } else { params![false] };
+        let todos = stmt
+            .query_map(params, |row| {
+                Ok(Todo {
+                    id: row.get(0)?,
+                    title: row.get(1)?,
+                    created_at: row.get(2)?,
+                    updated_at: row.get(3)?,
+                    done: row.get(4)?,
+                })
+            })?
+            .map(|r| r.unwrap())
+            .collect();
+
+        Ok(todos)
+    }
+
     pub fn mark_as_done(&self, id: i32) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
         let now = chrono::Local::now().to_rfc3339();

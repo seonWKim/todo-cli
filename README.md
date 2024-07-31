@@ -29,6 +29,8 @@ $ tc h
 alias ta="tc a"
 alias tl="tc l"
 alias tla="tc l -a"
+alias tf="tc f"
+alias tfa="tc f -a"
 alias ti="tc i"
 alias td="tc d"
 alias tu="tc u"

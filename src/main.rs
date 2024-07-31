@@ -1,11 +1,10 @@
 use std::io;
 use std::io::Write;
 
-use clap::{CommandFactory, Parser, Subcommand};
-use colored::Colorize;
+use clap::{Parser, Subcommand};
 
 use crate::database::TodoDatabase;
-use crate::handlers::{handle_add, handle_done, handle_help, handle_list, handle_remove, handle_reset, handle_undone};
+use crate::handlers::{handle_add, handle_done, handle_find, handle_help, handle_list, handle_remove, handle_reset, handle_undone};
 use crate::utils::{log, user_input};
 
 mod database;
@@ -33,6 +32,14 @@ enum Command {
 
     #[command(name = "l", aliases = ["ls", "list"], about = "List all todos")]
     List {
+        #[arg(short, long, help = "Include tasks marked as done")]
+        all: bool
+    },
+
+    #[command(name = "f", aliases = ["find"], about = "Find todo")]
+    Find {
+        keyword: Vec<String>,
+
         #[arg(short, long, help = "Include tasks marked as done")]
         all: bool
     },
@@ -98,7 +105,7 @@ fn handle_command(command: Command) {
                     }
                     _ => {
                         // We can't register help as command's alias because there is a conflict with the (clap's) help command
-                        if (input.trim() == "help") {
+                        if input.trim() == "help" {
                             handle_non_interactive_command(&tdb, Command::Help);
                         } else {
                             log("Invalid command provided, stopping...");
@@ -122,6 +129,11 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
         }
         Command::List { all } => {
             handle_list(&tdb, all)
+        }
+        Command::Find { keyword, all } => {
+            let joined_keyword = keyword.join(" ");
+            let keyword = joined_keyword.trim();
+            handle_find(&tdb, &keyword, all)
         }
         Command::Done { task } => {
             handle_done(&tdb, task);
