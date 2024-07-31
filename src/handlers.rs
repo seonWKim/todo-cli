@@ -1,5 +1,8 @@
 use std::collections::BTreeMap;
-
+use std::io;
+use std::io::Write;
+use std::thread::sleep;
+use std::time::{Duration, Instant};
 use chrono::NaiveDate;
 use clap::CommandFactory;
 use colored::Colorize;
@@ -125,6 +128,29 @@ pub fn handle_reset(tdb: &TodoDatabase) {
 
     tdb.reset().expect("Failed to remove all todos");
     log("Removed all todos");
+}
+
+pub fn handle_timer(tdb: &TodoDatabase, minutes: u64, todo_id: Option<i32>) {
+    let duration = Duration::from_secs(minutes * 60);
+    let end_time = Instant::now() + duration;
+
+    while Instant::now() < end_time {
+        let remaining = end_time - Instant::now();
+        let minutes_left = remaining.as_secs() / 60;
+        let seconds_left = remaining.as_secs() % 60;
+
+        print!("\rTime left: {:02}:{:02}", minutes_left, seconds_left);
+        io::stdout().flush().unwrap();
+        sleep(Duration::from_secs(1));
+    }
+
+    let input = user_input(&"\nTime's up! Did you finish your work? (yes/no): ".red()).expect("Failed to read input");
+    if input.trim() == "yes" {
+        if let Some(id) = todo_id {
+            tdb.mark_as_done(id).expect("Failed to mark todo as done");
+            log(&format!("Marked todo {} as done", id));
+        }
+    }
 }
 
 pub fn handle_help() {

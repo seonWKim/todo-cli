@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 
 use crate::database::TodoDatabase;
-use crate::handlers::{handle_add, handle_done, handle_find, handle_help, handle_list, handle_remove, handle_reset, handle_undone};
+use crate::handlers::{handle_add, handle_done, handle_find, handle_help, handle_list, handle_remove, handle_reset, handle_timer, handle_undone};
 use crate::utils::{log, user_input};
 
 mod database;
@@ -67,7 +67,11 @@ enum Command {
 
     #[command(name = "t", aliases = ["timer"], about = "Start timer")]
     Timer {
-        todo_id: i32
+        #[arg(short, long, help = "Minutes to run the timer")]
+        minutes: u64,
+
+        #[arg(short, long, help = "Todo id to associate with the timer")]
+        id: Option<i32>
     },
 }
 
@@ -153,6 +157,9 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
         }
         Command::Reset => {
             handle_reset(&tdb);
+        }
+        Command::Timer { minutes, id } => {
+            handle_timer(&tdb, minutes, id);
         }
         _ => {}
     }
