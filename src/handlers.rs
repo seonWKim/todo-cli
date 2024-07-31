@@ -1,3 +1,6 @@
+use clap::CommandFactory;
+
+use crate::Cli;
 use crate::database::TodoDatabase;
 use crate::utils::log;
 
@@ -30,4 +33,8 @@ pub fn handle_remove(tdb: &TodoDatabase, id: i32) {
 pub fn handle_remove_all(tdb: &TodoDatabase) {
     tdb.remove_all_todos().expect("Failed to remove all todos");
     log("Removed all todos");
+}
+
+pub fn handle_help() {
+    Cli::command().print_long_help().unwrap();
 }

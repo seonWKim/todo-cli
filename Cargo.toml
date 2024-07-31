@@ -7,3 +7,4 @@ edition = "2021"
 clap = { version = "4.5.11", features = ["derive"] }
 rusqlite = { version = "0.31.0", features = ["bundled"] }
 chrono = "0.4.38"
+colored = "2.0"
