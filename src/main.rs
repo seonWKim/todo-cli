@@ -49,21 +49,26 @@ enum Command {
 
     #[command(name = "d", aliases = ["done"], about = "Mark todo as done")]
     Done {
-        task: i32,
+        todo_id: i32,
     },
 
     #[command(name = "u", aliases = ["undone"], about = "Mark todo as undone")]
     UNDONE {
-        task: i32,
+        todo_id: i32,
     },
 
     #[command(name = "r", aliases = ["remove"], about = "Remove todo")]
     Remove {
-        task: i32,
+        todo_id: i32,
     },
 
     #[command(name = "rs", aliases = ["reset"], about = "Reset todos")]
     Reset,
+
+    #[command(name = "t", aliases = ["timer"], about = "Start timer")]
+    Timer {
+        todo_id: i32
+    },
 }
 
 fn main() {
@@ -137,14 +142,14 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
             let keyword = joined_keyword.trim();
             handle_find(&tdb, &keyword, all, date)
         }
-        Command::Done { task } => {
-            handle_done(&tdb, task);
+        Command::Done { todo_id } => {
+            handle_done(&tdb, todo_id);
         }
-        Command::UNDONE { task } => {
-            handle_undone(&tdb, task);
+        Command::UNDONE { todo_id } => {
+            handle_undone(&tdb, todo_id);
         }
-        Command::Remove { task } => {
-            handle_remove(&tdb, task);
+        Command::Remove { todo_id } => {
+            handle_remove(&tdb, todo_id);
         }
         Command::Reset => {
             handle_reset(&tdb);
