@@ -1,11 +1,13 @@
 use std::collections::BTreeMap;
 use std::io;
-use std::io::Write;
+use std::io::{Write};
 use std::thread::sleep;
 use std::time::{Duration, Instant};
+
 use chrono::NaiveDate;
 use clap::CommandFactory;
 use colored::Colorize;
+use figlet_rs::FIGfont;
 
 use crate::Cli;
 use crate::database::{Todo, TodoDatabase};
@@ -134,13 +136,35 @@ pub fn handle_timer(tdb: &TodoDatabase, minutes: u64, todo_id: Option<i32>) {
     let duration = Duration::from_secs(minutes * 60);
     let end_time = Instant::now() + duration;
 
+    let standard_font = FIGfont::standard().unwrap();
+    let mut previous_lines = 0;
+
     while Instant::now() < end_time {
         let remaining = end_time - Instant::now();
         let minutes_left = remaining.as_secs() / 60;
         let seconds_left = remaining.as_secs() % 60;
 
-        print!("\rTime left: {:02}:{:02}", minutes_left, seconds_left);
+        let text = format!("{:02}:{:02}", minutes_left, seconds_left);
+        let figure = standard_font.convert(&text).unwrap();
+        let figure_string = figure.to_string();
+        let lines: Vec<&str> = figure_string.lines().collect();
+        let current_lines = lines.len();
+
+        if previous_lines > 0 {
+            for _ in 0..previous_lines {
+                // \x1B is the escape character (ESC) in hexadecimal.
+                // [1A is the ANSI code to move the cursor up by one line.
+                // [2K is the ANSI code to clear the entire line where the cursor is currently located.
+                print!("\x1B[1A\x1B[2K");
+            }
+        }
+
+        for line in &lines {
+            println!("{}", line);
+        }
+
         io::stdout().flush().unwrap();
+        previous_lines = current_lines;
         sleep(Duration::from_secs(1));
     }
 
