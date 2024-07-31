@@ -5,7 +5,7 @@ use clap::{CommandFactory, Parser, Subcommand};
 use colored::Colorize;
 
 use crate::database::TodoDatabase;
-use crate::handlers::{handle_add, handle_done, handle_help, handle_list, handle_remove, handle_remove_all};
+use crate::handlers::{handle_add, handle_done, handle_help, handle_list, handle_remove, handle_reset};
 use crate::utils::{log, user_input};
 
 mod database;
@@ -26,29 +26,29 @@ enum Command {
     )]
     Interactive {},
 
-    #[command(name = "a", aliases = ["add"], about = "Add a new task")]
+    #[command(name = "a", aliases = ["add"], about = "Add new todo")]
     Add {
         task: Vec<String>,
     },
 
-    #[command(name = "l", aliases = ["ls", "list"], about = "List all tasks")]
+    #[command(name = "l", aliases = ["ls", "list"], about = "List all todos")]
     List {
         #[arg(short, long, help = "Include tasks marked as done")]
         all: bool
     },
 
-    #[command(name = "d", aliases = ["done"], about = "Mark a task as done")]
+    #[command(name = "d", aliases = ["done"], about = "Mark todo as done")]
     Done {
         task: i32,
     },
 
-    #[command(name = "r", aliases = ["remove"], about = "Remove a task")]
+    #[command(name = "r", aliases = ["remove"], about = "Remove todo")]
     Remove {
         task: i32,
     },
 
-    #[command(name = "ra", aliases = ["removeAll"], about = "Remove all tasks")]
-    RemoveAll,
+    #[command(name = "rs", aliases = ["reset"], about = "Reset todos")]
+    Reset,
 
     #[command(name = "h", about = "Print help information")]
     Help,
@@ -124,8 +124,8 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
         Command::Remove { task } => {
             handle_remove(&tdb, task);
         }
-        Command::RemoveAll => {
-            handle_remove_all(&tdb);
+        Command::Reset => {
+            handle_reset(&tdb);
         }
         Command::Help => {
             handle_help();

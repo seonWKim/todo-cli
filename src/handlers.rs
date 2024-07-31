@@ -30,8 +30,8 @@ pub fn handle_remove(tdb: &TodoDatabase, id: i32) {
     log(&format!("Removed todo {}", id));
 }
 
-pub fn handle_remove_all(tdb: &TodoDatabase) {
-    tdb.remove_all_todos().expect("Failed to remove all todos");
+pub fn handle_reset(tdb: &TodoDatabase) {
+    tdb.reset().expect("Failed to remove all todos");
     log("Removed all todos");
 }
 

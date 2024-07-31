@@ -138,7 +138,7 @@ impl TodoDatabase {
         Ok(())
     }
 
-    pub fn remove_all_todos(&self) -> Result<()> {
+    pub fn reset(&self) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
 
         conn.execute("DELETE FROM todos", [])?;
