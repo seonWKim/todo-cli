@@ -22,19 +22,28 @@ $ tc i
 
 # get all commands 
 $ tc h 
-``` 
 
-### Examples 
-```bash
-$ tc a "Buy milk"          # add a todo 
-$ tc l                     # list all todos
-$ tc f                     # find a todo
-$ tc d <id>                # mark a todo as done 
-$ tc undone <id>           # mark a todo as undone
-$ tc i                     # start interactive mode
-$ tc u <id> -t "Buy water" # update a todo 
-$ tc t -m <minutes>        # set a timer 
-````
+# add a todo 
+$ tc a "Buy milk"
+
+# list all todos
+$ tc l 
+
+# find a todo
+$ tc f
+
+# mark a todo as done
+$ tc d <id>
+
+# mark a todo as undone
+$ tc undone <id>
+
+# update a todo
+$ tc u <id> -t "Buy water"
+
+# set a timer
+$ tc t -m <minutes>      
+``` 
 
 ## Development 
 
