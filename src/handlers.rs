@@ -181,6 +181,12 @@ pub fn handle_timer(tdb: &TodoDatabase, minutes: u64, todo_id: Option<i32>) {
             println!("{:width$}{}", "", line, width = horizontal_padding);
         }
 
+        // Print left vertical padding
+        let left_padding = term_height.saturating_sub(current_lines + vertical_padding);
+        for _ in 0..left_padding {
+            println!();
+        }
+
         io::stdout().flush().unwrap();
         sleep(Duration::from_secs(1));
     }
