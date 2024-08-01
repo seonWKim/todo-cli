@@ -24,18 +24,17 @@ $ tc i
 $ tc h 
 ``` 
 
-### Add alias to your ~/.bashrc or ~/.zshrc 
-```bash 
-alias ta="tc a"
-alias tl="tc l"
-alias tla="tc l -a"
-alias tf="tc f"
-alias tfa="tc f -a"
-alias ti="tc i"
-alias td="tc d"
-alias tu="tc u"
-alias tt="tc t"
-```
+### Examples 
+```bash
+$ tc a "Buy milk"          # add a todo 
+$ tc l                     # list all todos
+$ tc f                     # find a todo
+$ tc d <id>                # mark a todo as done 
+$ tc undone <id>           # mark a todo as undone
+$ tc i                     # start interactive mode
+$ tc u <id> -t "Buy water" # update a todo 
+$ tc t -m <minutes>        # set a timer 
+````
 
 ## Development 
 

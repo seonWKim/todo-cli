@@ -29,8 +29,8 @@ enum Command {
 
     #[command(name = "u", aliases = ["update"], about = "Update todo")]
     Update {
-        #[arg(short = 'i', long = "id", help = "Todo id to update")]
-        todo_id: i32,
+        #[arg(help = "Todo id to update")]
+        id: i32,
 
         #[arg(short = 't', long = "todo", help = "New todo text", num_args = 1..)]
         todo: Vec<String>,
@@ -58,17 +58,17 @@ enum Command {
 
     #[command(name = "d", aliases = ["done"], about = "Mark todo as done")]
     Done {
-        todo_id: i32,
+        id: i32,
     },
 
     #[command(name = "undone", about = "Mark todo as undone")]
     UNDONE {
-        todo_id: i32,
+        id: i32,
     },
 
     #[command(name = "r", aliases = ["remove"], about = "Remove todo")]
     Remove {
-        todo_id: i32,
+        id: i32,
     },
 
     #[command(name = "rs", aliases = ["reset"], about = "Reset todos")]
@@ -143,12 +143,12 @@ fn handle_command(command: Command) {
 
 fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
     match command {
-        Command::Add { todo: task } => {
-            let todo = task.join(" ");
+        Command::Add { todo } => {
+            let todo = todo.join(" ");
             handle_add(&tdb, &todo);
         }
-        Command::Update { todo_id, todo: task } => {
-            let todo = task.join(" ");
+        Command::Update { id: todo_id, todo } => {
+            let todo = todo.join(" ");
             handle_update(&tdb, todo_id, &todo);
         }
         Command::List { all , date } => {
@@ -159,14 +159,14 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
             let keyword = joined_keyword.trim();
             handle_find(&tdb, &keyword, all, date)
         }
-        Command::Done { todo_id } => {
-            handle_done(&tdb, todo_id);
+        Command::Done { id } => {
+            handle_done(&tdb, id);
         }
-        Command::UNDONE { todo_id } => {
-            handle_undone(&tdb, todo_id);
+        Command::UNDONE { id } => {
+            handle_undone(&tdb, id);
         }
-        Command::Remove { todo_id } => {
-            handle_remove(&tdb, todo_id);
+        Command::Remove { id } => {
+            handle_remove(&tdb, id);
         }
         Command::Reset => {
             handle_reset(&tdb);
