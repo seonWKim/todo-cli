@@ -54,5 +54,3 @@ sqlite> SELECT * FROM todos;
 - [ ] Add priority to the todos, sort and show by priority
 - [ ] Add Alfred support 
 - [ ] Deadline for todos 
-- [ ] Timer support 
-- [ ] Update todo 
