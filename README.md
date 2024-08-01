@@ -34,6 +34,7 @@ alias tfa="tc f -a"
 alias ti="tc i"
 alias td="tc d"
 alias tu="tc u"
+alias tt="tc t"
 ```
 
 ## Development 
@@ -55,3 +56,4 @@ sqlite> SELECT * FROM todos;
 - [ ] Add Alfred support 
 - [ ] Deadline for todos 
 - [ ] Timer support 
+- [ ] Update todo 
