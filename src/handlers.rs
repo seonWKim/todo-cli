@@ -3,6 +3,7 @@ use std::io;
 use std::io::{Write};
 use std::thread::sleep;
 use std::time::{Duration, Instant};
+use termion::terminal_size;
 
 use chrono::NaiveDate;
 use clap::CommandFactory;
@@ -150,17 +151,26 @@ pub fn handle_timer(tdb: &TodoDatabase, minutes: u64, todo_id: Option<i32>) {
         let lines: Vec<&str> = figure_string.lines().collect();
         let current_lines = lines.len();
 
-        if previous_lines > 0 {
-            for _ in 0..previous_lines {
-                // \x1B is the escape character (ESC) in hexadecimal.
-                // [1A is the ANSI code to move the cursor up by one line.
-                // [2K is the ANSI code to clear the entire line where the cursor is currently located.
-                print!("\x1B[1A\x1B[2K");
-            }
+        // Clear the screen and move the cursor to the top
+        print!("\x1B[2J\x1B[H");
+
+        // Get terminal size
+        let (width, height) = terminal_size().unwrap();
+        let term_width = width as usize;
+        let term_height = height as usize;
+
+        // Calculate vertical and horizontal padding
+        let vertical_padding = (term_height.saturating_sub(current_lines)) / 2;
+        let horizontal_padding = (term_width.saturating_sub(lines[0].len())) / 2;
+
+        // Print vertical padding
+        for _ in 0..vertical_padding {
+            println!();
         }
 
+        // Print each line with horizontal padding
         for line in &lines {
-            println!("{}", line);
+            println!("{:width$}{}", "", line, width = horizontal_padding);
         }
 
         io::stdout().flush().unwrap();
