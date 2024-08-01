@@ -99,6 +99,18 @@ impl TodoDatabase {
         Ok(())
     }
 
+    pub fn update_todo(&self, id: i32, todo: &str) -> Result<()> {
+        let conn = Connection::open(self.get_db_path())?;
+        let now = chrono::Local::now().to_rfc3339();
+
+        conn.execute(
+            "UPDATE todos SET title = ?1, updated_at = ?2 WHERE id = ?3",
+            params![todo, now, id],
+        )?;
+
+        Ok(())
+    }
+
     pub fn list_todos(&self, include_all: bool) -> Result<Vec<Todo>> {
         let conn = Connection::open(self.get_db_path())?;
         let sql = if include_all {

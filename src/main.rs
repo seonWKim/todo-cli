@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 
 use crate::database::TodoDatabase;
-use crate::handlers::{handle_add, handle_done, handle_find, handle_help, handle_list, handle_remove, handle_reset, handle_timer, handle_undone};
+use crate::handlers::{handle_add, handle_done, handle_find, handle_help, handle_list, handle_remove, handle_reset, handle_timer, handle_undone, handle_update};
 use crate::utils::{log, user_input};
 
 mod database;
@@ -24,7 +24,16 @@ enum Command {
 
     #[command(name = "a", aliases = ["add"], about = "Add new todo")]
     Add {
-        task: Vec<String>,
+        todo: Vec<String>,
+    },
+
+    #[command(name = "u", aliases = ["update"], about = "Update todo")]
+    Update {
+        #[arg(short = 'i', long = "id", help = "Todo id to update")]
+        todo_id: i32,
+
+        #[arg(short = 't', long = "todo", help = "New todo text", num_args = 1..)]
+        todo: Vec<String>,
     },
 
     #[command(name = "l", aliases = ["ls", "list"], about = "List all todos")]
@@ -52,7 +61,7 @@ enum Command {
         todo_id: i32,
     },
 
-    #[command(name = "u", aliases = ["undone"], about = "Mark todo as undone")]
+    #[command(name = "undone", about = "Mark todo as undone")]
     UNDONE {
         todo_id: i32,
     },
@@ -134,9 +143,13 @@ fn handle_command(command: Command) {
 
 fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
     match command {
-        Command::Add { task } => {
+        Command::Add { todo: task } => {
             let todo = task.join(" ");
             handle_add(&tdb, &todo);
+        }
+        Command::Update { todo_id, todo: task } => {
+            let todo = task.join(" ");
+            handle_update(&tdb, todo_id, &todo);
         }
         Command::List { all , date } => {
             handle_list(&tdb, all, date)

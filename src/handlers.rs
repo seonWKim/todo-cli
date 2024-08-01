@@ -23,6 +23,15 @@ pub fn handle_add(tdb: &TodoDatabase, todo: &str) {
     log(&format!("Added task: {}", todo));
 }
 
+pub fn handle_update(tdb: &TodoDatabase, todo_id: i32, todo: &str) {
+    if todo.is_empty() {
+        log("Todo cannot be empty");
+        return;
+    }
+    tdb.update_todo(todo_id, todo).expect("Failed to update todo");
+    log(&format!("Updated task: {}", todo));
+}
+
 pub fn handle_list(tdb: &TodoDatabase, include_all: bool, sort_by_date: bool) {
     let todos = tdb.list_todos(include_all).expect("Failed to list todos");
 
@@ -138,7 +147,6 @@ pub fn handle_timer(tdb: &TodoDatabase, minutes: u64, todo_id: Option<i32>) {
     let end_time = Instant::now() + duration;
 
     let standard_font = FIGfont::standard().unwrap();
-    let mut previous_lines = 0;
 
     while Instant::now() < end_time {
         let remaining = end_time - Instant::now();
@@ -174,7 +182,6 @@ pub fn handle_timer(tdb: &TodoDatabase, minutes: u64, todo_id: Option<i32>) {
         }
 
         io::stdout().flush().unwrap();
-        previous_lines = current_lines;
         sleep(Duration::from_secs(1));
     }
 
