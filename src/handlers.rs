@@ -15,12 +15,12 @@ use crate::Cli;
 use crate::database::{Todo, TodoDatabase};
 use crate::utils::{log, user_input};
 
-pub fn handle_add(tdb: &TodoDatabase, todo: &str) {
+pub fn handle_add(tdb: &TodoDatabase, todo: &str, priority: Option<i32>) {
     if todo.is_empty() {
         log("Todo cannot be empty");
         return;
     }
-    tdb.add_todo(todo).expect("Failed to add todo");
+    tdb.add_todo(todo, priority).expect("Failed to add todo");
     log(&format!("Added task: {}", todo));
 }
 

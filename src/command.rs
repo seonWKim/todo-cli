@@ -14,6 +14,9 @@ pub enum Command {
     #[command(name = "a", aliases = ["add"], about = "Add new todo")]
     Add {
         todo: Vec<String>,
+
+        #[arg(short, long, help = "Priority of the todo")]
+        priority: Option<i32>,
     },
 
     #[command(name = "u", aliases = ["update"], about = "Update todo")]
@@ -123,9 +126,9 @@ pub fn handle_command(command: Command) {
 
 fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
     match command {
-        Command::Add { todo } => {
+        Command::Add { todo, priority } => {
             let todo = todo.join(" ");
-            handle_add(&tdb, &todo);
+            handle_add(&tdb, &todo, priority);
         }
         Command::Update { id: todo_id, todo } => {
             let todo = todo.join(" ");
@@ -173,7 +176,7 @@ mod tests {
     fn parse_add() {
         let args = vec!["tc", "a", "new", "todo"];
         let cli = Cli::try_parse_from(args).unwrap();
-        assert_eq!(cli.command, Some(Command::Add { todo: vec!["new".to_string(), "todo".to_string()] }));
+        assert_eq!(cli.command, Some(Command::Add { todo: vec!["new".to_string(), "todo".to_string()], priority: None }));
     }
 
     #[test]

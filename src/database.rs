@@ -90,18 +90,19 @@ impl TodoDatabase {
         fs::metadata(db_path).is_ok()
     }
 
-    pub fn add_todo(&self, todo: &str) -> Result<()> {
+    pub fn add_todo(&self, todo: &str, priority: Option<i32>) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
         let now = chrono::Local::now().to_rfc3339();
 
+        // Mark todo with same name as done
         conn.execute(
             "UPDATE todos SET done = ?1, updated_at = ?2 WHERE title = ?3",
             params![true, now, todo],
         )?;
 
         conn.execute(
-            "INSERT INTO todos (title, created_at, updated_at, done) VALUES (?1, ?2, ?3, ?4)",
-            params![todo, now, now, false],
+            "INSERT INTO todos (title, done, priority, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![todo, false, priority.unwrap_or(0), now, now],
         )?;
 
         Ok(())
@@ -151,7 +152,7 @@ impl TodoDatabase {
         let sql = if include_all {
             format!("SELECT id, title, done, priority, created_at, updated_at FROM todos WHERE title LIKE '%{}%'", keyword)
         } else {
-            format!("SELECT id, title, done, priority, created_at, updated_at, FROM todos WHERE title LIKE '%{}%' AND done = ?1", keyword)
+            format!("SELECT id, title, done, priority, created_at, updated_at FROM todos WHERE title LIKE '%{}%' AND done = ?1", keyword)
         };
         let mut stmt = conn.prepare(sql.as_str())?;
 
@@ -253,15 +254,16 @@ mod tests {
         let todo2 = "Test Todo 2".to_string();
         let todo3 = "Test Todo 3".to_string();
 
-        tdb.add_todo(&todo1).unwrap();
-        tdb.add_todo(&todo2).unwrap();
-        tdb.add_todo(&todo3).unwrap();
+        tdb.add_todo(&todo1, None).unwrap();
+        tdb.add_todo(&todo2, None).unwrap();
+        tdb.add_todo(&todo3, Some(1)).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 3);
         assert_eq!(todos[0].title, todo1);
         assert_eq!(todos[1].title, todo2);
         assert_eq!(todos[2].title, todo3);
+        assert_eq!(todos[2].priority, 1);
 
         tear_down_test_db(&tdb);
     }
@@ -271,7 +273,7 @@ mod tests {
         let tdb = setup_test_db("test_add_mark_and_list_todos.db");
 
         let todo = "Test Todo".to_string();
-        tdb.add_todo(&todo).unwrap();
+        tdb.add_todo(&todo, None).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 1);
@@ -290,7 +292,7 @@ mod tests {
         let tdb = setup_test_db("test_undone_todo_should_be_shown.db");
 
         let todo = "Test Todo".to_string();
-        tdb.add_todo(&todo).unwrap();
+        tdb.add_todo(&todo, None).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 1);
@@ -314,7 +316,7 @@ mod tests {
         let tdb = setup_test_db("test_add_remove_and_list_todos.db");
 
         let todo = "Test Todo".to_string();
-        tdb.add_todo(&todo).unwrap();
+        tdb.add_todo(&todo, None).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 1);
@@ -333,7 +335,7 @@ mod tests {
         let tdb = setup_test_db("test_default_priority_should_be_zero.db");
 
         let todo = "Test Todo".to_string();
-        tdb.add_todo(&todo).unwrap();
+        tdb.add_todo(&todo, None).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 1);
