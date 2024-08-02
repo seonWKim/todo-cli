@@ -143,7 +143,7 @@ pub fn handle_reset(tdb: &TodoDatabase) {
     log("Removed all todos");
 }
 
-pub fn handle_timer(tdb: &TodoDatabase, minutes: u64, todo_id: Option<i32>) {
+pub fn handle_timer(minutes: u64) {
     let duration = Duration::from_secs(minutes * 60);
     let end_time = Instant::now() + duration;
 

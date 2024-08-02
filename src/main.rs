@@ -42,7 +42,7 @@ enum Command {
         all: bool,
 
         #[arg(short, long, help = "Sort by date")]
-        date: bool
+        date: bool,
     },
 
     #[command(name = "f", aliases = ["find"], about = "Find todo")]
@@ -53,21 +53,24 @@ enum Command {
         all: bool,
 
         #[arg(short, long, help = "Sort by date")]
-        date: bool
+        date: bool,
     },
 
     #[command(name = "d", aliases = ["done"], about = "Mark todo as done")]
     Done {
+        #[arg(help = "Todo id to update")]
         id: i32,
     },
 
     #[command(name = "undone", about = "Mark todo as undone")]
     UNDONE {
+        #[arg(help = "Todo id to update")]
         id: i32,
     },
 
     #[command(name = "r", aliases = ["remove"], about = "Remove todo")]
     Remove {
+        #[arg(help = "Todo id to update")]
         id: i32,
     },
 
@@ -76,11 +79,8 @@ enum Command {
 
     #[command(name = "t", aliases = ["timer"], about = "Start timer")]
     Timer {
-        #[arg(short, long, help = "Minutes to run the timer")]
+        #[arg(help = "Minutes to run the timer")]
         minutes: u64,
-
-        #[arg(short, long, help = "Todo id to associate with the timer")]
-        id: Option<i32>
     },
 }
 
@@ -151,7 +151,7 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
             let todo = todo.join(" ");
             handle_update(&tdb, todo_id, &todo);
         }
-        Command::List { all , date } => {
+        Command::List { all, date } => {
             handle_list(&tdb, all, date)
         }
         Command::Find { keyword, all, date } => {
@@ -171,8 +171,8 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
         Command::Reset => {
             handle_reset(&tdb);
         }
-        Command::Timer { minutes, id } => {
-            handle_timer(&tdb, minutes, id);
+        Command::Timer { minutes } => {
+            handle_timer(minutes);
         }
         _ => {}
     }
