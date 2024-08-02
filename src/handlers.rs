@@ -9,7 +9,7 @@ use chrono::NaiveDate;
 use clap::CommandFactory;
 use colored::Colorize;
 use figlet_rs::FIGfont;
-use prettytable::{Cell, Row, Table};
+use prettytable::{Cell, color, Row, Table};
 use termion::terminal_size;
 
 use crate::Cli;
@@ -72,7 +72,7 @@ fn sort_and_print_todos(todos: &Vec<Todo>, highlight_keyword: Option<&str>, sort
     }
 }
 
-fn print_todos(todos: &Vec<Todo>, highlight_keyword: Option<&str>) {
+fn print_todos(todos: &Vec<Todo>, keyword: Option<&str>) {
     let mut table = Table::new();
 
     table.add_row(Row::new(vec![
@@ -83,19 +83,20 @@ fn print_todos(todos: &Vec<Todo>, highlight_keyword: Option<&str>) {
     ]));
 
     for todo in todos {
-        let mark =  if todo.done { "✅" } else { " " };
+        let mark = if todo.done { "X" } else { "" };
 
-        let highlightened_title = if let Some(keyword) = highlight_keyword {
-            todo.title.replace(keyword, &format!("{}", keyword).red().to_string())
-        } else {
-            todo.title.clone()
-        };
+        let mut title_cell = Cell::new(&todo.title);
+        if let Some(keyword) = keyword {
+            if todo.title.contains(keyword) {
+                title_cell = title_cell.with_style(prettytable::Attr::ForegroundColor(color::BLUE));
+            }
+        }
 
         table.add_row(Row::new(vec![
             Cell::new(&todo.id.to_string()),
-            Cell::new(&highlightened_title),
+            title_cell,
             Cell::new(&todo.priority.to_string()),
-            Cell::new(mark),
+            Cell::new(mark).style_spec("c"),
         ]));
     }
 

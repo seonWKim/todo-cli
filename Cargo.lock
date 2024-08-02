@@ -616,6 +616,7 @@ dependencies = [
  "prettytable-rs",
  "rusqlite",
  "termion",
+ "unicode-width",
 ]
 
 [[package]]
