@@ -9,3 +9,5 @@ mv target/release/todo-cli .
 
 # Remove the existing symbolic link if exists
 rm -f $HOME/.tc/bin/tc
+
+ln -s $PWD/todo-cli $HOME/.tc/bin/tc
