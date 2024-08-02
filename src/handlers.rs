@@ -1,14 +1,15 @@
 use std::collections::BTreeMap;
 use std::io;
-use std::io::{Write};
+use std::io::Write;
+use std::process::Command;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
-use termion::terminal_size;
 
 use chrono::NaiveDate;
 use clap::CommandFactory;
 use colored::Colorize;
 use figlet_rs::FIGfont;
+use termion::terminal_size;
 
 use crate::Cli;
 use crate::database::{Todo, TodoDatabase};
@@ -191,12 +192,33 @@ pub fn handle_timer(tdb: &TodoDatabase, minutes: u64, todo_id: Option<i32>) {
         sleep(Duration::from_secs(1));
     }
 
-    let input = user_input(&"\nTime's up! Did you finish your work? (yes/no): ".red()).expect("Failed to read input");
-    if input.trim() == "yes" {
-        if let Some(id) = todo_id {
-            tdb.mark_as_done(id).expect("Failed to mark todo as done");
-            log(&format!("Marked todo {} as done", id));
-        }
+    show_alert("todo-cli", "Time's up! Did you finish your work?");
+}
+
+pub(crate) fn show_alert(title: &str, message: &str) {
+    if cfg!(target_os = "macos") {
+        Command::new("osascript")
+            .arg("-e")
+            .arg(format!("display alert \"{}\" message \"{}\"", title, message))
+            .stdout(std::process::Stdio::null()) // redirect output to /dev/null
+            .status()
+            .expect("failed to execute process");
+    } else if cfg!(target_os = "linux") {
+        // TODO: test in linux
+        Command::new("zenity")
+            .arg("--info")
+            .arg(format!("--text={}", message))
+            .status()
+            .expect("failed to execute process");
+    } else if cfg!(target_os = "windows") {
+        // TODO: test in window 
+        Command::new("msg")
+            .arg("*")
+            .arg(message)
+            .status()
+            .expect("failed to execute process");
+    } else {
+        eprintln!("Unsupported OS");
     }
 }
 
