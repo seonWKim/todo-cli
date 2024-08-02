@@ -96,7 +96,7 @@ fn print_todos(todos: &Vec<Todo>, keyword: Option<&str>) {
             Cell::new(&todo.id.to_string()),
             title_cell,
             Cell::new(&todo.priority.to_string()),
-            Cell::new(mark).style_spec("c"),
+            Cell::new(mark),
         ]));
     }
 
