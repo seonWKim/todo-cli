@@ -12,17 +12,13 @@ pub struct TodoDatabase {
 
 impl TodoDatabase {
     pub fn new() -> TodoDatabase {
-        let db_dir_path = format!("{}/.tc", std::env::var("HOME").unwrap());
-        TodoDatabase {
-            db_dir_path,
-            db_name: "todo.db".to_string(),
-            db_todo_table_ddl: "CREATE TABLE IF NOT EXISTS todos (id INTEGER PRIMARY KEY, title TEXT NOT NULL, created_at DATE NOT NULL, updated_at DATE NOT NULL, done BOOLEAN NOT NULL)".to_string(),
-            db_todo_index_ddl: "CREATE INDEX IF NOT EXISTS idx_todos_done ON todos (done)".to_string(),
-        }
+        Self::new0(
+            format!("{}/.tc", std::env::var("HOME").unwrap()),
+            "todo.db".to_string()
+        )
     }
 
-    #[allow(dead_code)]
-    fn new_test(
+    fn new0(
         db_dir_path: String,
         db_name: String
     ) -> TodoDatabase {
@@ -225,7 +221,7 @@ mod tests {
     #[allow(dead_code)]
     fn setup_test_db(db_name: &str) -> TodoDatabase {
         let db_path = format!("{}/.tc_test", env::var("HOME").unwrap()).to_string();
-        let tdb = TodoDatabase::new_test(db_path, db_name.to_string());
+        let tdb = TodoDatabase::new(db_path, db_name.to_string());
         tdb.initialize().expect("Failed to initialize test database");
 
         return tdb;
