@@ -25,8 +25,20 @@ impl TodoDatabase {
         TodoDatabase {
             db_dir_path,
             db_name,
-            db_todo_table_ddl: "CREATE TABLE IF NOT EXISTS todos (id INTEGER PRIMARY KEY, title TEXT NOT NULL, created_at DATE NOT NULL, updated_at DATE NOT NULL, done BOOLEAN NOT NULL)".to_string(),
-            db_todo_index_ddl: "CREATE INDEX IF NOT EXISTS idx_todos_done ON todos (done)".to_string(),
+            db_todo_table_ddl: r#"
+            CREATE TABLE IF NOT EXISTS todos
+            (
+                id         INTEGER PRIMARY KEY,
+                title      TEXT            NOT NULL, -- title of the todo
+                done       BOOLEAN         NOT NULL, -- whether the todo is done or not
+                priority   INTEGER         NOT NULL DEFAULT 0, -- priority of the todo
+                created_at DATE            NOT NULL,
+                updated_at DATE            NOT NULL
+            )
+            "#.to_string(),
+            db_todo_index_ddl: r#"
+            CREATE INDEX IF NOT EXISTS idx_todos_done ON todos (done)
+            "#.to_string(),
         }
     }
 
@@ -110,9 +122,9 @@ impl TodoDatabase {
     pub fn list_todos(&self, include_all: bool) -> Result<Vec<Todo>> {
         let conn = Connection::open(self.get_db_path())?;
         let sql = if include_all {
-            "SELECT id, title, created_at, updated_at, done FROM todos"
+            "SELECT id, title, done, priority, created_at, updated_at FROM todos"
         } else {
-            "SELECT id, title, created_at, updated_at, done FROM todos WHERE done = ?1"
+            "SELECT id, title, done, priority, created_at, updated_at FROM todos WHERE done = ?1"
         };
         let mut stmt = conn.prepare(sql)?;
 
@@ -122,9 +134,10 @@ impl TodoDatabase {
                 Ok(Todo {
                     id: row.get(0)?,
                     title: row.get(1)?,
-                    created_at: row.get(2)?,
-                    updated_at: row.get(3)?,
-                    done: row.get(4)?,
+                    done: row.get(2)?,
+                    priority: row.get(3)?,
+                    created_at: row.get(4)?,
+                    updated_at: row.get(5)?,
                 })
             })?
             .map(|r| r.unwrap())
@@ -136,9 +149,9 @@ impl TodoDatabase {
     pub fn find_todos(&self, keyword: &str, include_all: bool) -> Result<Vec<Todo>> {
         let conn = Connection::open(self.get_db_path())?;
         let sql = if include_all {
-            format!("SELECT id, title, created_at, updated_at, done FROM todos WHERE title LIKE '%{}%'", keyword)
+            format!("SELECT id, title, done, priority, created_at, updated_at FROM todos WHERE title LIKE '%{}%'", keyword)
         } else {
-            format!("SELECT id, title, created_at, updated_at, done FROM todos WHERE title LIKE '%{}%' AND done = ?1", keyword)
+            format!("SELECT id, title, done, priority, created_at, updated_at, FROM todos WHERE title LIKE '%{}%' AND done = ?1", keyword)
         };
         let mut stmt = conn.prepare(sql.as_str())?;
 
@@ -148,9 +161,10 @@ impl TodoDatabase {
                 Ok(Todo {
                     id: row.get(0)?,
                     title: row.get(1)?,
-                    created_at: row.get(2)?,
-                    updated_at: row.get(3)?,
-                    done: row.get(4)?,
+                    done: row.get(2)?,
+                    priority: row.get(3)?, 
+                    created_at: row.get(4)?,
+                    updated_at: row.get(5)?,
                 })
             })?
             .map(|r| r.unwrap())
@@ -193,9 +207,7 @@ impl TodoDatabase {
 
     pub fn reset(&self) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
-
         conn.execute("DELETE FROM todos", [])?;
-
         Ok(())
     }
 }
@@ -205,10 +217,11 @@ impl TodoDatabase {
 pub struct Todo {
     pub(crate) id: i32,
     pub(crate) title: String,
+    pub(crate) done: bool,
+    pub(crate) priority: i32,
     pub(crate) created_at: String,
     #[allow(dead_code)]
     updated_at: String,
-    pub(crate) done: bool,
 }
 
 
@@ -221,7 +234,7 @@ mod tests {
     #[allow(dead_code)]
     fn setup_test_db(db_name: &str) -> TodoDatabase {
         let db_path = format!("{}/.tc_test", env::var("HOME").unwrap()).to_string();
-        let tdb = TodoDatabase::new(db_path, db_name.to_string());
+        let tdb = TodoDatabase::new0(db_path, db_name.to_string());
         tdb.initialize().expect("Failed to initialize test database");
 
         return tdb;
@@ -311,6 +324,22 @@ mod tests {
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 0);
+
+        tear_down_test_db(&tdb);
+    }
+
+    #[test]
+    fn test_default_priority_should_be_zero() {
+        let tdb = setup_test_db("test_default_priority_should_be_zero.db");
+
+        let todo = "Test Todo".to_string();
+        tdb.add_todo(&todo).unwrap();
+
+        let todos = tdb.list_todos(false).unwrap();
+        assert_eq!(todos.len(), 1);
+        assert_eq!(todos[0].title, todo);
+        assert_eq!(todos[0].done, false);
+        assert_eq!(todos[0].priority, 0);
 
         tear_down_test_db(&tdb);
     }
