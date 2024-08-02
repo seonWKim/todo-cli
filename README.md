@@ -88,3 +88,4 @@ sqlite> SELECT * FROM todos;
 - [ ] Add priority to the todos, sort and show by priority
 - [ ] Add Alfred support 
 - [ ] Deadline for todos 
+- [ ] Table width bug when running list or find command 
