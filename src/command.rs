@@ -4,7 +4,7 @@ use crate::database::TodoDatabase;
 use crate::handlers::{handle_add, handle_done, handle_find, handle_help, handle_list, handle_remove, handle_reset, handle_timer, handle_undone, handle_update};
 use crate::utils::{log, user_input};
 
-#[derive(Subcommand)]
+#[derive(Subcommand, PartialEq, Debug)]
 pub enum Command {
     #[command(
         name = "i", aliases = ["interactive"], about = "Start interactive mode"
@@ -158,3 +158,105 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_interactive() {
+        let args = vec!["tc", "i"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::Interactive {}));
+    }
+
+    #[test]
+    fn parse_add() {
+        let args = vec!["tc", "a", "new", "todo"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::Add { todo: vec!["new".to_string(), "todo".to_string()] }));
+    }
+
+    #[test]
+    fn parse_update() {
+        let args = vec!["tc", "u", "1", "-t", "updated", "todo"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::Update { id: 1, todo: vec!["updated".to_string(), "todo".to_string()] }));
+    }
+
+    #[test]
+    fn parse_list() {
+        let args = vec!["tc", "l"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::List { all: false, date: false }));
+    }
+
+    #[test]
+    fn parse_list_all() {
+        let args = vec!["tc", "l", "-a"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::List { all: true, date: false }));
+    }
+
+    #[test]
+    fn parse_list_date() {
+        let args = vec!["tc", "l", "-d"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::List { all: false, date: true }));
+    }
+
+    #[test]
+    fn parse_find() {
+        let args = vec!["tc", "f", "keyword"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::Find { keyword: vec!["keyword".to_string()], all: false, date: false }));
+    }
+
+    #[test]
+    fn parse_find_all() {
+        let args = vec!["tc", "f", "keyword", "-a"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::Find { keyword: vec!["keyword".to_string()], all: true, date: false }));
+    }
+
+    #[test]
+    fn parse_find_date() {
+        let args = vec!["tc", "f", "keyword", "-d"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::Find { keyword: vec!["keyword".to_string()], all: false, date: true }));
+    }
+
+    #[test]
+    fn parse_done() {
+        let args = vec!["tc", "d", "1"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::Done { id: 1 }));
+    }
+
+    #[test]
+    fn parse_undone() {
+        let args = vec!["tc", "undone", "1"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::UNDONE { id: 1 }));
+    }
+
+    #[test]
+    fn parse_remove() {
+        let args = vec!["tc", "r", "1"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::Remove { id: 1 }));
+    }
+
+    #[test]
+    fn parse_reset() {
+        let args = vec!["tc", "rs"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::Reset));
+    }
+
+    #[test]
+    fn parse_timer() {
+        let args = vec!["tc", "t", "10"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::Timer { minutes: 10 }));
+    }
+}

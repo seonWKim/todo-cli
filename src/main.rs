@@ -1,5 +1,7 @@
-use clap::{Parser, Subcommand};
+use clap::Parser;
+
 use command::Command;
+
 mod database;
 mod utils;
 mod handlers;
