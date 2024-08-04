@@ -53,20 +53,20 @@ pub enum Command {
 
     #[command(name = "d", aliases = ["done"], about = "Mark todo as done")]
     Done {
-        #[arg(help = "Todo id to update")]
-        id: i32,
+        #[arg(help = "Todo ids to update")]
+        ids: Vec<i32>,
     },
 
     #[command(name = "undone", about = "Mark todo as undone")]
     UNDONE {
-        #[arg(help = "Todo id to update")]
-        id: i32,
+        #[arg(help = "Todo ids to update")]
+        ids: Vec<i32>,
     },
 
     #[command(name = "r", aliases = ["remove"], about = "Remove todo")]
     Remove {
-        #[arg(help = "Todo id to update")]
-        id: i32,
+        #[arg(help = "Todo ids to update")]
+        ids: Vec<i32>,
     },
 
     #[command(name = "rs", aliases = ["reset"], about = "Reset todos")]

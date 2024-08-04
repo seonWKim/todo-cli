@@ -16,16 +16,16 @@ pub fn find_todos(tdb: &TodoDatabase, keyword: &str, include_all: bool) -> Vec<T
     return tdb.find_todos(keyword, include_all).expect("Failed to find todos");
 }
 
-pub fn mark_todo_as_done(tdb: &TodoDatabase, id: i32) -> bool {
-    tdb.mark_as_done(id).is_ok()
+pub fn mark_todo_as_done(tdb: &TodoDatabase, ids: &Vec<i32>) -> bool {
+    tdb.mark_as_done(ids).is_ok()
 }
 
-pub fn mark_todo_as_undone(tdb: &TodoDatabase, id: i32) -> bool {
-    tdb.mark_as_undone(id).is_ok()
+pub fn mark_todo_as_undone(tdb: &TodoDatabase, ids: &Vec<i32>) -> bool {
+    tdb.mark_as_undone(ids).is_ok()
 }
 
-pub fn remove_todo(tdb: &TodoDatabase, id: i32) -> bool {
-    tdb.remove_todo(id).is_ok()
+pub fn remove_todo(tdb: &TodoDatabase, ids: &Vec<i32>) -> bool {
+    tdb.remove_todo(ids).is_ok()
 }
 
 pub fn reset_todo(tdb: &TodoDatabase) -> bool {

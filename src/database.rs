@@ -1,6 +1,7 @@
 use std::fs;
 
 use rusqlite::{Connection, params, Result};
+
 use crate::utils::log;
 
 pub struct TodoDatabase {
@@ -14,13 +15,13 @@ impl TodoDatabase {
     pub fn new() -> TodoDatabase {
         Self::new0(
             format!("{}/.tc", std::env::var("HOME").unwrap()),
-            "todo.db".to_string()
+            "todo.db".to_string(),
         )
     }
 
     fn new0(
         db_dir_path: String,
-        db_name: String
+        db_name: String,
     ) -> TodoDatabase {
         TodoDatabase {
             db_dir_path,
@@ -163,7 +164,7 @@ impl TodoDatabase {
                     id: row.get(0)?,
                     title: row.get(1)?,
                     done: row.get(2)?,
-                    priority: row.get(3)?, 
+                    priority: row.get(3)?,
                     created_at: row.get(4)?,
                     updated_at: row.get(5)?,
                 })
@@ -174,34 +175,37 @@ impl TodoDatabase {
         Ok(todos)
     }
 
-    pub fn mark_as_done(&self, id: i32) -> Result<()> {
+    pub fn mark_as_done(&self, ids: &Vec<i32>) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
         let now = chrono::Local::now().to_rfc3339();
 
+        let ids_str = ids.iter().map(|id| id.to_string()).collect::<Vec<String>>().join(",");
         conn.execute(
-            "UPDATE todos SET done = ?1, updated_at = ?2 WHERE id = ?3",
-            params![true, now, id],
+            "UPDATE todos SET done = ?1, updated_at = ?2 WHERE id IN (?3)",
+            params![true, now, ids_str],
         )?;
 
         Ok(())
     }
 
-    pub fn mark_as_undone(&self, id: i32) -> Result<()> {
+    pub fn mark_as_undone(&self, ids: &Vec<i32>) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
         let now = chrono::Local::now().to_rfc3339();
 
+        let ids_str = ids.iter().map(|id| id.to_string()).collect::<Vec<String>>().join(",");
         conn.execute(
-            "UPDATE todos SET done = ?1, updated_at = ?2 WHERE id = ?3",
-            params![false, now, id],
+            "UPDATE todos SET done = ?1, updated_at = ?2 WHERE id IN (?3)",
+            params![false, now, ids_str],
         )?;
 
         Ok(())
     }
 
-    pub fn remove_todo(&self, id: i32) -> Result<()> {
+    pub fn remove_todo(&self, ids: &Vec<i32>) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
 
-        conn.execute("DELETE FROM todos WHERE id = ?1", params![id])?;
+        let ids_str = ids.iter().map(|id| id.to_string()).collect::<Vec<String>>().join(",");
+        conn.execute("DELETE FROM todos WHERE id IN (?1)", params![ids_str])?;
 
         Ok(())
     }
@@ -212,7 +216,6 @@ impl TodoDatabase {
         Ok(())
     }
 }
-
 
 #[derive(Clone, Debug)]
 pub struct Todo {
@@ -279,7 +282,7 @@ mod tests {
         assert_eq!(todos.len(), 1);
         let todo_id = todos[0].id;
 
-        tdb.mark_as_done(todo_id).unwrap();
+        tdb.mark_as_done(&vec![todo_id]).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 0);
@@ -298,12 +301,12 @@ mod tests {
         assert_eq!(todos.len(), 1);
         let todo_id = todos[0].id;
 
-        tdb.mark_as_done(todo_id).unwrap();
+        tdb.mark_as_done(&vec![todo_id]).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 0);
 
-        tdb.mark_as_undone(todo_id).unwrap();
+        tdb.mark_as_undone(&vec![todo_id]).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 1);
@@ -322,7 +325,7 @@ mod tests {
         assert_eq!(todos.len(), 1);
         let todo_id = todos[0].id;
 
-        tdb.remove_todo(todo_id).unwrap();
+        tdb.remove_todo(&vec![todo_id]).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 0);

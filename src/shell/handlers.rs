@@ -104,23 +104,23 @@ fn print_todos(todos: &Vec<Todo>, keyword: Option<&str>) {
     table.printstd();
 }
 
-pub fn handle_done(tdb: &TodoDatabase, id: i32) {
-    match mark_todo_as_done(tdb, id) {
-        true => log(&format!("Marked todo {} as done", id)),
+pub fn handle_done(tdb: &TodoDatabase, ids: &Vec<i32>) {
+    match mark_todo_as_done(tdb, ids) {
+        true => log(&format!("Marked todo {:?} as done", ids)),
         false => {}
     }
 }
 
-pub fn handle_undone(tdb: &TodoDatabase, id: i32) {
-    match mark_todo_as_undone(tdb, id) {
-        true => log(&format!("Marked todo {} as undone", id)),
+pub fn handle_undone(tdb: &TodoDatabase, ids: &Vec<i32>) {
+    match mark_todo_as_undone(tdb, ids) {
+        true => log(&format!("Marked todo {:?} as undone", ids)),
         false => {}
     }
 }
 
-pub fn handle_remove(tdb: &TodoDatabase, id: i32) {
-    match remove_todo(tdb, id) {
-        true => log(&format!("Removed todo {}", id)),
+pub fn handle_remove(tdb: &TodoDatabase, ids: &Vec<i32>) {
+    match remove_todo(tdb, ids) {
+        true => log(&format!("Removed todo {:?}", ids)),
         false => {}
     }
 }

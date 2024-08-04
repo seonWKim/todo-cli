@@ -68,9 +68,9 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
             let todo = todo.join(" ");
             handle_add(&tdb, &todo, priority);
         }
-        Command::Update { id: todo_id, todo } => {
+        Command::Update { id, todo } => {
             let todo = todo.join(" ");
-            handle_update(&tdb, todo_id, &todo);
+            handle_update(&tdb, id, &todo);
         }
         Command::List { all, date } => {
             handle_list(&tdb, all, date)
@@ -80,14 +80,14 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
             let keyword = joined_keyword.trim();
             handle_find(&tdb, &keyword, all, date)
         }
-        Command::Done { id } => {
-            handle_done(&tdb, id);
+        Command::Done { ids } => {
+            handle_done(&tdb, &ids);
         }
-        Command::UNDONE { id } => {
-            handle_undone(&tdb, id);
+        Command::UNDONE { ids } => {
+            handle_undone(&tdb, &ids);
         }
-        Command::Remove { id } => {
-            handle_remove(&tdb, id);
+        Command::Remove { ids } => {
+            handle_remove(&tdb, &ids);
         }
         Command::Reset => {
             handle_reset(&tdb);
@@ -168,23 +168,23 @@ mod tests {
 
     #[test]
     fn parse_done() {
-        let args = vec!["tc", "d", "1"];
+        let args = vec!["tc", "d", "1", "2"];
         let cli = Cli::try_parse_from(args).unwrap();
-        assert_eq!(cli.command, Some(Command::Done { id: 1 }));
+        assert_eq!(cli.command, Some(Command::Done { ids: vec![1, 2] }));
     }
 
     #[test]
     fn parse_undone() {
-        let args = vec!["tc", "undone", "1"];
+        let args = vec!["tc", "undone", "1", "2"];
         let cli = Cli::try_parse_from(args).unwrap();
-        assert_eq!(cli.command, Some(Command::UNDONE { id: 1 }));
+        assert_eq!(cli.command, Some(Command::UNDONE { ids: vec![1, 2] }));
     }
 
     #[test]
     fn parse_remove() {
-        let args = vec!["tc", "r", "1"];
+        let args = vec!["tc", "r", "1", "2"];
         let cli = Cli::try_parse_from(args).unwrap();
-        assert_eq!(cli.command, Some(Command::Remove { id: 1 }));
+        assert_eq!(cli.command, Some(Command::Remove { ids: vec![1, 2] }));
     }
 
     #[test]
