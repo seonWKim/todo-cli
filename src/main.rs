@@ -1,23 +1,18 @@
-use clap::Parser;
-
-use command::Cli;
-
-use crate::settings::Settings;
+use crate::settings::{Mode, Settings};
 
 mod database;
 mod utils;
 mod handlers;
 mod command;
 mod settings;
+mod shell;
+mod server;
 
 fn main() {
     let settings = Settings::new().expect("Failed to load settings");
-    println!("Mode: {}", settings.mode);
 
-    let cli = Cli::parse();
-
-    match cli.command {
-        Some(command) => command::handle_command(command),
-        None => println!("[tc] No command provided"),
+    match settings.mode {
+        Mode::Shell => shell::entry::start(),
+        Mode::Server => server::entry::start(),
     }
 }
