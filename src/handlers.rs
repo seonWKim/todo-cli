@@ -12,7 +12,7 @@ use figlet_rs::FIGfont;
 use prettytable::{Cell, color, Row, Table};
 use termion::terminal_size;
 
-use crate::Cli;
+use crate::command::Cli;
 use crate::database::{Todo, TodoDatabase};
 use crate::utils::{log, user_input};
 

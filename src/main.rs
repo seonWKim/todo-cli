@@ -1,20 +1,19 @@
 use clap::Parser;
 
-use command::Command;
+use command::Cli;
+
+use crate::settings::Settings;
 
 mod database;
 mod utils;
 mod handlers;
 mod command;
-
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-struct Cli {
-    #[command(subcommand)]
-    command: Option<Command>,
-}
+mod settings;
 
 fn main() {
+    let settings = Settings::new().expect("Failed to load settings");
+    println!("Mode: {}", settings.mode);
+
     let cli = Cli::parse();
 
     match cli.command {

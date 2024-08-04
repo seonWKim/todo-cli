@@ -1,8 +1,15 @@
 use clap::{Parser, Subcommand};
-use crate::Cli;
 use crate::database::TodoDatabase;
 use crate::handlers::{handle_add, handle_done, handle_find, handle_help, handle_list, handle_remove, handle_reset, handle_timer, handle_undone, handle_update};
 use crate::utils::{log, user_input};
+
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+pub struct Cli {
+    #[command(subcommand)]
+    pub(crate) command: Option<Command>,
+}
 
 #[derive(Subcommand, PartialEq, Debug)]
 pub enum Command {
