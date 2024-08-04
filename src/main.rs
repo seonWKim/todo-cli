@@ -9,7 +9,7 @@ mod shell;
 mod server;
 
 fn main() {
-    let settings = Settings::new().expect("Failed to load settings");
+    let settings = Settings::new(); 
 
     match settings.mode {
         Mode::Shell => shell::entry::start(),

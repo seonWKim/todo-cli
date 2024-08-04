@@ -3,6 +3,8 @@ name = "todo-cli"
 version = "0.1.0"
 edition = "2021"
 
+include = ["Settings.toml"]
+
 [dependencies]
 clap = { version = "4.5.11", features = ["derive"] }
 rusqlite = { version = "0.31.0", features = ["bundled"] }
@@ -12,5 +14,4 @@ figlet-rs = "0.1.5"
 termion = "4.0.2"
 prettytable-rs = "0.10.0"
 unicode-width = "0.1.13"
-config = "0.14.0"
 serde = { version = "1.0.204", features = ["derive"] }

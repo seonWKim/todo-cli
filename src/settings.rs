@@ -1,14 +1,15 @@
-use config::{Config, ConfigError};
+use std::env;
+
 use serde::Deserialize;
 
 impl Settings {
-    pub fn new() -> Result<Self, ConfigError> {
-        let s = Config::builder()
-            .add_source(config::File::with_name("Settings"))
-            .build()
-            .unwrap();
-
-        s.try_deserialize()
+    pub fn new() -> Self {
+        Settings {
+            mode: match env::var("TC_MODE").unwrap_or_else(|_| "shell".to_string()).to_lowercase().as_str() {
+                "server" => Mode::Server,
+                _ => Mode::Shell,
+            }
+        }
     }
 }
 
