@@ -129,7 +129,7 @@ pub fn handle_undone(tdb: &TodoDatabase, ids: &Vec<i32>) {
 }
 
 pub fn handle_remove(tdb: &TodoDatabase, ids: &Vec<i32>) {
-    if (ids.is_empty()) {
+    if ids.is_empty() {
         log("No todo ids provided");
         return;
     }
