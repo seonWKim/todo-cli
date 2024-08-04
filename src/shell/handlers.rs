@@ -14,6 +14,7 @@ use termion::terminal_size;
 
 use crate::command::Cli;
 use crate::database::{Todo, TodoDatabase};
+use crate::operations::{add_todo, find_todos, list_todos, mark_todo_as_done, mark_todo_as_undone, remove_todo, reset_todo, update_todo};
 use crate::utils::{log, user_input};
 
 pub fn handle_add(tdb: &TodoDatabase, todo: &str, priority: Option<i32>) {
@@ -21,7 +22,7 @@ pub fn handle_add(tdb: &TodoDatabase, todo: &str, priority: Option<i32>) {
         log("Todo cannot be empty");
         return;
     }
-    tdb.add_todo(todo, priority).expect("Failed to add todo");
+    add_todo(tdb, todo, priority);
     log(&format!("Added task: {}", todo));
 }
 
@@ -30,17 +31,17 @@ pub fn handle_update(tdb: &TodoDatabase, todo_id: i32, todo: &str) {
         log("Todo cannot be empty");
         return;
     }
-    tdb.update_todo(todo_id, todo).expect("Failed to update todo");
+    update_todo(tdb, todo_id, todo);
     log(&format!("Updated task: {}", todo));
 }
 
 pub fn handle_list(tdb: &TodoDatabase, include_all: bool, sort_by_date: bool) {
-    let todos = tdb.list_todos(include_all).expect("Failed to list todos");
+    let todos = list_todos(tdb, include_all);
     sort_and_print_todos(&todos, None, sort_by_date);
 }
 
 pub fn handle_find(tdb: &TodoDatabase, keyword: &str, include_all: bool, sort_by_date: bool) {
-    let todos = tdb.find_todos(keyword, include_all).expect("Failed to find todos");
+    let todos = find_todos(tdb, keyword, include_all);
     sort_and_print_todos(&todos, Some(keyword), sort_by_date);
 }
 
@@ -104,18 +105,24 @@ fn print_todos(todos: &Vec<Todo>, keyword: Option<&str>) {
 }
 
 pub fn handle_done(tdb: &TodoDatabase, id: i32) {
-    tdb.mark_as_done(id).expect("Failed to mark todo as done");
-    log(&format!("Marked todo {} as done", id));
+    match mark_todo_as_done(tdb, id) {
+        true => log(&format!("Marked todo {} as done", id)),
+        false => {}
+    }
 }
 
 pub fn handle_undone(tdb: &TodoDatabase, id: i32) {
-    tdb.mark_as_undone(id).expect("Failed to mark todo as undone");
-    log(&format!("Marked todo {} as undone", id));
+    match mark_todo_as_undone(tdb, id) {
+        true => log(&format!("Marked todo {} as undone", id)),
+        false => {}
+    }
 }
 
 pub fn handle_remove(tdb: &TodoDatabase, id: i32) {
-    tdb.remove_todo(id).expect("Failed to remove todo");
-    log(&format!("Removed todo {}", id));
+    match remove_todo(tdb, id) {
+        true => log(&format!("Removed todo {}", id)),
+        false => {}
+    }
 }
 
 pub fn handle_reset(tdb: &TodoDatabase) {
@@ -125,8 +132,10 @@ pub fn handle_reset(tdb: &TodoDatabase) {
         return;
     }
 
-    tdb.reset().expect("Failed to remove all todos");
-    log("Removed all todos");
+    match reset_todo(tdb) {
+        true => log("Removed all todos"),
+        false => log("Failed to remove all todos"),
+    }
 }
 
 pub fn handle_timer(minutes: u64) {

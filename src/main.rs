@@ -2,7 +2,7 @@ use crate::settings::{Mode, Settings};
 
 mod database;
 mod utils;
-mod handlers;
+mod operations;
 mod command;
 mod settings;
 mod shell;

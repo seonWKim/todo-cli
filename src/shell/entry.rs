@@ -1,7 +1,8 @@
 use clap::Parser;
+
 use crate::command::{Cli, Command};
 use crate::database::TodoDatabase;
-use crate::handlers::{handle_add, handle_done, handle_find, handle_help, handle_list, handle_remove, handle_reset, handle_timer, handle_undone, handle_update};
+use crate::shell::handlers::{handle_add, handle_done, handle_find, handle_help, handle_list, handle_remove, handle_reset, handle_timer, handle_undone, handle_update};
 use crate::utils::{log, user_input};
 
 pub fn start() {
