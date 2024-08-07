@@ -1,6 +1,6 @@
 # TODO-CLI 
 
-todo-cli is a simple command line tool to manage your todo list. 
+todo-cli is a simple command line tool to manage your todo list which is written in Rust.
 
 ## Installation 
   
