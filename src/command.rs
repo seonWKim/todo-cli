@@ -65,8 +65,11 @@ pub enum Command {
 
     #[command(name = "r", aliases = ["remove"], about = "Remove todo")]
     Remove {
-        #[arg(help = "Todo ids to update")]
+        #[arg(num_args(1..), help = "Todo ids to update")]
         ids: Vec<i32>,
+
+        #[arg(long, help = "Remove todos until given date. Pass the argument in yyyy-mm-dd format")]
+        date: Option<String>,
     },
 
     #[command(name = "rs", aliases = ["reset"], about = "Reset todos")]

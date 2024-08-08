@@ -24,8 +24,12 @@ pub fn mark_todo_as_undone(tdb: &TodoDatabase, ids: &Vec<i32>) -> bool {
     tdb.mark_as_undone(ids).is_ok()
 }
 
-pub fn remove_todo(tdb: &TodoDatabase, ids: &Vec<i32>) -> bool {
-    tdb.remove_todo(ids).is_ok()
+pub fn remove_todos_by_ids(tdb: &TodoDatabase, ids: &Vec<i32>) -> bool {
+    tdb.remove_todos_by_ids(ids).is_ok()
+}
+
+pub fn remove_todos_until_date(tdb: &TodoDatabase, date: &str) -> bool {
+    tdb.remove_todos_until_date(date).is_ok()
 }
 
 pub fn reset_todo(tdb: &TodoDatabase) -> bool {

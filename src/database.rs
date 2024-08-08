@@ -201,12 +201,18 @@ impl TodoDatabase {
         Ok(())
     }
 
-    pub fn remove_todo(&self, ids: &Vec<i32>) -> Result<()> {
+    pub fn remove_todos_by_ids(&self, ids: &Vec<i32>) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
 
         let ids_str = ids.iter().map(|id| id.to_string()).collect::<Vec<String>>().join(",");
         conn.execute("DELETE FROM todos WHERE id IN (?1)", params![ids_str])?;
 
+        Ok(())
+    }
+
+    pub fn remove_todos_until_date(&self, date: &str) -> Result<()> {
+        let conn = Connection::open(self.get_db_path())?;
+        conn.execute("DELETE FROM todos WHERE created_at <= ?1", params![date])?;
         Ok(())
     }
 
@@ -315,7 +321,7 @@ mod tests {
     }
 
     #[test]
-    fn test_add_remove_and_list_todos() {
+    fn test_add_remove_by_ids_and_list_todos() {
         let tdb = setup_test_db("test_add_remove_and_list_todos.db");
 
         let todo = "Test Todo".to_string();
@@ -325,7 +331,26 @@ mod tests {
         assert_eq!(todos.len(), 1);
         let todo_id = todos[0].id;
 
-        tdb.remove_todo(&vec![todo_id]).unwrap();
+        tdb.remove_todos_by_ids(&vec![todo_id]).unwrap();
+
+        let todos = tdb.list_todos(false).unwrap();
+        assert_eq!(todos.len(), 0);
+
+        tear_down_test_db(&tdb);
+    }
+
+    #[test]
+    fn test_add_remove_until_date_and_list_todos() {
+        let tdb = setup_test_db("test_add_remove_until_date_and_list_todos.db");
+
+        let todo = "Test Todo".to_string();
+        tdb.add_todo(&todo, None).unwrap();
+
+        let todos = tdb.list_todos(false).unwrap();
+        assert_eq!(todos.len(), 1);
+
+        let date = chrono::Local::now().to_rfc3339();
+        tdb.remove_todos_until_date(&date).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 0);

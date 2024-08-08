@@ -15,3 +15,4 @@ termion = "4.0.2"
 prettytable-rs = "0.10.0"
 unicode-width = "0.1.13"
 serde = { version = "1.0.204", features = ["derive"] }
+regex = "1.10.6"

@@ -10,11 +10,12 @@ use clap::CommandFactory;
 use colored::Colorize;
 use figlet_rs::FIGfont;
 use prettytable::{Cell, color, Row, Table};
+use regex::Regex;
 use termion::terminal_size;
 
 use crate::command::Cli;
 use crate::database::{Todo, TodoDatabase};
-use crate::operations::{add_todo, find_todos, list_todos, mark_todo_as_done, mark_todo_as_undone, remove_todo, reset_todo, update_todo};
+use crate::operations::{add_todo, find_todos, list_todos, mark_todo_as_done, mark_todo_as_undone, remove_todos_by_ids, remove_todos_until_date, reset_todo, update_todo};
 use crate::utils::{log, user_input};
 
 pub fn handle_add(tdb: &TodoDatabase, todo: &str, priority: Option<i32>) {
@@ -105,7 +106,7 @@ fn print_todos(todos: &Vec<Todo>, keyword: Option<&str>) {
 }
 
 pub fn handle_done(tdb: &TodoDatabase, ids: &Vec<i32>) {
-    if (ids.is_empty()) {
+    if ids.is_empty() {
         log("No todo ids provided");
         return;
     }
@@ -117,7 +118,7 @@ pub fn handle_done(tdb: &TodoDatabase, ids: &Vec<i32>) {
 }
 
 pub fn handle_undone(tdb: &TodoDatabase, ids: &Vec<i32>) {
-    if (ids.is_empty()) {
+    if ids.is_empty() {
         log("No todo ids provided");
         return;
     }
@@ -128,15 +129,22 @@ pub fn handle_undone(tdb: &TodoDatabase, ids: &Vec<i32>) {
     }
 }
 
-pub fn handle_remove(tdb: &TodoDatabase, ids: &Vec<i32>) {
-    if ids.is_empty() {
-        log("No todo ids provided");
-        return;
+pub fn handle_remove(tdb: &TodoDatabase, ids: &Vec<i32>, date: Option<String>) {
+    if !ids.is_empty() {
+        match remove_todos_by_ids(tdb, ids) {
+            true => log(&format!("Removed todo {:?}", ids)),
+            false => {}
+        }
     }
 
-    match remove_todo(tdb, ids) {
-        true => log(&format!("Removed todo {:?}", ids)),
-        false => {}
+    if let Some(d) = date {
+        let yyyy_mm_dd = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
+        match d.as_str() {
+            date if yyyy_mm_dd.is_match(date) => {
+                remove_todos_until_date(tdb, date);
+            }
+            _ => log("Invalid date format. Use yyyy-mm-dd"),
+        }
     }
 }
 

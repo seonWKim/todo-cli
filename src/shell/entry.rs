@@ -86,8 +86,8 @@ fn handle_non_interactive_command(tdb: &TodoDatabase, command: Command) {
         Command::UNDONE { ids } => {
             handle_undone(&tdb, &ids);
         }
-        Command::Remove { ids } => {
-            handle_remove(&tdb, &ids);
+        Command::Remove { ids, date } => {
+            handle_remove(&tdb, &ids, date);
         }
         Command::Reset => {
             handle_reset(&tdb);
@@ -184,7 +184,14 @@ mod tests {
     fn parse_remove() {
         let args = vec!["tc", "r", "1", "2"];
         let cli = Cli::try_parse_from(args).unwrap();
-        assert_eq!(cli.command, Some(Command::Remove { ids: vec![1, 2] }));
+        assert_eq!(cli.command, Some(Command::Remove { ids: vec![1, 2], date: None }));
+    }
+
+    #[test]
+    fn pare_remove_2() {
+        let args = vec!["tc", "r", "1", "2", "--date", "2021-01-01"];
+        let cli = Cli::try_parse_from(args).unwrap();
+        assert_eq!(cli.command, Some(Command::Remove { ids: vec![1, 2], date: Some("2021-01-01".to_string()) }));
     }
 
     #[test]
