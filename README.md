@@ -1,3 +1,5 @@
+![Demo](tc.gif)
+
 # TODO-CLI 
 
 todo-cli is a simple command line tool to manage your todo list. 
