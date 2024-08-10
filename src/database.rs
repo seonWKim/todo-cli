@@ -212,7 +212,12 @@ impl TodoDatabase {
 
     pub fn remove_todos_until_date(&self, date: &str) -> Result<()> {
         let conn = Connection::open(self.get_db_path())?;
-        conn.execute("DELETE FROM todos WHERE created_at <= ?1", params![date])?;
+        let parsed_date = chrono::NaiveDate::parse_from_str(date, "%Y-%m-%d")
+            .map_err(|_| rusqlite::Error::InvalidParameterName("Invalid date format".to_string()))?;
+        let end_of_day = parsed_date.and_hms_opt(23, 59, 59)
+            .ok_or_else(|| rusqlite::Error::InvalidParameterName("Invalid date format".to_string()))?;
+        let end_of_day_str = end_of_day.format("%Y-%m-%dT%H:%M:%S").to_string();
+        conn.execute("DELETE FROM todos WHERE created_at <= ?1", params![end_of_day_str])?;
         Ok(())
     }
 
@@ -349,7 +354,7 @@ mod tests {
         let todos = tdb.list_todos(false).unwrap();
         assert_eq!(todos.len(), 1);
 
-        let date = chrono::Local::now().to_rfc3339();
+        let date = chrono::Local::now().format("%Y-%m-%d").to_string();
         tdb.remove_todos_until_date(&date).unwrap();
 
         let todos = tdb.list_todos(false).unwrap();
